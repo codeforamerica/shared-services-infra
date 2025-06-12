@@ -39,6 +39,9 @@ jobs:
       - name: Initialize OpenTofu
         working-directory: ./tofu/config/${{ inputs.environment }}/infra
         run: tofu init
+      - name: Verify the application exists
+        working-directory: ./tofu/config/${{ inputs.environment }}/infra
+        run: tofu state list module.app\[\"${{ inputs.application }}\"]
       - name: Apply changes
         working-directory: ./tofu/config/${{ inputs.environment }}/infra
         run: tofu apply --target module.app\[\"${{ inputs.application }}\"] --auto-approve
