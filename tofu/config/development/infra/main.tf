@@ -47,3 +47,21 @@ module "vpc" {
   # 10.1.8.1 - 10.1.19.254
   public_subnets = ["10.1.8.0/22", "10.1.12.0/22", "10.1.16.0/22"]
 }
+
+module "app" {
+  source = "../../../modules/app"
+
+  project     = local.apps["sebt"].name
+  environment = "development"
+  program     = local.apps["sebt"].program
+  services    = local.apps["sebt"].services
+  domain      = try(
+    local.apps["sebt"].domain,
+    try(local.apps.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external
+  )
+
+  logging_key_arn = module.logging.kms_key_arn
+  vpc_id = module.vpc.vpc_id
+  private_subnets = module.vpc.private_subnets
+  public_subnets  = module.vpc.public_subnets
+}
