@@ -7,6 +7,10 @@ on:
         description: Application to deploy.
         required: true
         type: string
+      distinct_id:
+        description: Distinct ID for this execution, used for tracking.
+        required: false
+        type: string
       environment:
         description: Environment to deploy to.
         default: development
@@ -26,6 +30,10 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
     steps:
+      - name: distinct ID ${{ inputs.distinct_id || github.run_id }}
+        uses: imesense/gha-echo-action@v0.2
+        with:
+          input-string: ${{ inputs.distinct_id || github.run_id }}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up AWS credentials
