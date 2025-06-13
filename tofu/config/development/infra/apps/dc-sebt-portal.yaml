@@ -1,0 +1,14 @@
+title: Washington, D.C. Sun Bucks (Summer EBT) Self-Service Portal
+name: sebt-portal
+program: safety-net
+repo: codeforamerica/cfa-dc-sebt-portal
+database:
+  type: mssql
+services:
+  web:
+    dockerfile: ./src/DC.SEBT.Web/Dockerfile
+    context: ./src
+    expose: 8080
+    public: true
+    ports:
+      - 8080

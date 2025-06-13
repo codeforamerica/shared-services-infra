@@ -1,24 +1,15 @@
-name: Plan infrastructure changes
+name: Plan application deployment
 
 on:
-  workflow_call:
-    inputs:
-      environment:
-        description: Environment to plan on.
-        default: development
-        required: true
-        type: string
-    outputs:
-      plan:
-        description: The plan output from the tofu plan command.
-        value: ${{ jobs.plan.outputs.plan }}
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
+  repository_dispatch:
+    types:
+      - plan-app
   workflow_dispatch:
     inputs:
+      application:
+        description: Application to plan.
+        required: true
+        type: string
       environment:
         description: Environment to plan on.
         default: development
@@ -30,12 +21,22 @@ permissions:
 
 jobs:
   plan:
-    name: Plan on ${{ inputs.environment }}
+    name: Plan deploy of ${{ inputs.application }} to ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    outputs:
-      plan: ${{ steps.plan.outputs.stdout }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
     steps:
+      - name: "DEBUG: Dump inputs"
+        uses: imesense/gha-echo-action@v0.2
+        with:
+          input-string: ${{ toJson(inputs) }}
+      - name: "DEBUG: Dump payload"
+        uses: imesense/gha-echo-action@v0.2
+        with:
+          input-string: ${{ toJson(github.event.client_payload) }}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up AWS credentials
@@ -43,16 +44,15 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          aws-region: us-east-1
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@v1
       - name: Initialize OpenTofu
         working-directory: ./tofu/config/${{ inputs.environment }}/infra
         run: tofu init
       - name: Plan changes
-        id: plan
         working-directory: ./tofu/config/${{ inputs.environment }}/infra
-        run: tofu plan -no-color -concise
+        run: tofu plan --target module.app\[\"${{ inputs.application }}\"]
       - name: Display plan
         uses: imesense/gha-echo-action@v0.2
         with:
