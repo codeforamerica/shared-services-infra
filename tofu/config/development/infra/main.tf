@@ -49,19 +49,22 @@ module "vpc" {
 }
 
 module "app" {
-  source = "../../../modules/app"
+  source   = "../../../modules/app"
+  for_each = local.apps
 
-  project     = local.apps["sebt"].name
-  environment = "development"
-  program     = local.apps["sebt"].program
-  services    = local.apps["sebt"].services
-  domain      = try(
-    local.apps["sebt"].domain,
-    try(local.apps.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external
+  project          = each.value.name
+  environment      = "development"
+  program          = each.value.program
+  services         = each.value.services
+  database_engine  = each.value.database.type
+  database_version = try(each.value.database.version, null)
+  domain = try(
+    each.value.domain,
+    try(each.value.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external
   )
 
   logging_key_arn = module.logging.kms_key_arn
-  vpc_id = module.vpc.vpc_id
+  vpc_id          = module.vpc.vpc_id
   private_subnets = module.vpc.private_subnets
   public_subnets  = module.vpc.public_subnets
 }
