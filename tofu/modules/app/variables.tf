@@ -56,6 +56,12 @@ variable "services" {
   default     = {}
 }
 
+variable "subdomain" {
+  description = "Subdomain to host the application under. This is typically only used for services that are using a shared domain, and is usually the name of the application."
+  type        = string
+  default     = null
+}
+
 variable "vpc_id" {
   description = "The VPC ID where the application will be deployed."
   type        = string

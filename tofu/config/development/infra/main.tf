@@ -63,6 +63,10 @@ module "app" {
     try(each.value.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external
   )
 
+  # If we're using one of our shared domain, put the application under a
+  # subdomain of its own.
+  subdomain = try(each.value.domain, null) != null ? null : each.key
+
   logging_key_arn = module.logging.kms_key_arn
   vpc_id          = module.vpc.vpc_id
   private_subnets = module.vpc.private_subnets
