@@ -16,9 +16,10 @@ module "service" {
   service       = each.key
   service_short = try(each.value.short_name, each.key)
   desired_containers = try(each.value.desired_containers, local.production ? 2 : 1)
+  health_check_path = try(each.value.health_check_path, "/health")
 
   domain    = var.domain
-  subdomain = try(each.value.subdomain, "www")
+  subdomain = "${try(each.value.subdomain, "www")}${local.domain_prefix}"
 
   vpc_id                   = var.vpc_id
   private_subnets          = var.private_subnets
