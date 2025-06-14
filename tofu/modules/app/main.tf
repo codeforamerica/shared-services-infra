@@ -6,7 +6,7 @@ module "secrets" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=security-group-outputs"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.3.0"
   for_each = var.services
 
   project       = var.project
@@ -15,6 +15,7 @@ module "service" {
   public        = try(each.value.public, false)
   service       = each.key
   service_short = try(each.value.short_name, each.key)
+  desired_containers = try(each.value.desired_containers, local.production ? 2 : 1)
 
   domain    = var.domain
   subdomain = try(each.value.subdomain, "www")
@@ -31,7 +32,7 @@ module "service" {
   }
 
   environment_secrets = {
-    DATABASE_USERNAME = "${module.mssql.db_instance_master_user_secret_arn}:usernmae"
+    DATABASE_USERNAME = "${module.mssql.db_instance_master_user_secret_arn}:username"
     DATABASE_PASSWORD = "${module.mssql.db_instance_master_user_secret_arn}:password"
   }
 
