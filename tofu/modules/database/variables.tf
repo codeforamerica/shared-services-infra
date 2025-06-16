@@ -10,11 +10,6 @@ variable "database_version" {
   default     = null
 }
 
-variable "domain" {
-  description = "The domain for the application."
-  type        = string
-}
-
 variable "environment" {
   description = "The environment for the application."
   type        = string
@@ -40,27 +35,9 @@ variable "project" {
   type        = string
 }
 
-variable "project_short" {
-  description = "Short name for the project, used in resource names."
+variable "secrets_key_arn" {
+  description = "The ARN of the KMS key used for secrets."
   type        = string
-  default     = null
-}
-
-variable "public_subnets" {
-  description = "List of public subnets for the application."
-  type        = list(string)
-}
-
-variable "services" {
-  description = "Services to deploy for the application."
-  type        = map(any)
-  default     = {}
-}
-
-variable "subdomain" {
-  description = "Subdomain to host the application under. This is typically only used for services that are using a shared domain, and is usually the name of the application."
-  type        = string
-  default     = null
 }
 
 variable "vpc_id" {

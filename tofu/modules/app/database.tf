@@ -1,17 +1,24 @@
-resource "aws_kms_key" "database" {
-  description             = "Database encryption key for ${var.project} ${var.environment}"
-  deletion_window_in_days = local.production ? 30 : 7
-  enable_key_rotation     = true
-  policy = jsonencode(yamldecode(templatefile("${path.module}/templates/key-policy.yaml.tftpl", {
-    account_id : data.aws_caller_identity.identity.account_id,
-    partition : data.aws_partition.current.partition,
-    region : data.aws_region.current.name,
-  })))
+module "database" {
+  source = "../database"
 
-  tags = local.tags
+  project         = var.project
+  environment     = var.environment
+  program         = var.program
+  private_subnets = var.private_subnets
+  vpc_id          = var.vpc_id
+
+  database_engine  = var.database_engine
+  database_version = var.database_version
+  logging_key_arn  = var.logging_key_arn
+  secrets_key_arn  = module.secrets.kms_key_arn
 }
 
-resource "aws_kms_alias" "database" {
-  name          = "alias/${var.project}/${var.environment}/database"
-  target_key_id = aws_kms_key.database.id
+resource "aws_vpc_security_group_ingress_rule" "database" {
+  for_each          = module.service
+  security_group_id = module.database.security_group_id
+
+  ip_protocol                  = "tcp"
+  from_port                    = module.database.port
+  to_port                      = module.database.port
+  referenced_security_group_id = each.value.security_group_id
 }
