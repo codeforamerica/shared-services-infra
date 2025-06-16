@@ -1,15 +1,3 @@
-data "aws_caller_identity" "identity" {}
-
-data "aws_partition" "current" {}
-
-data "aws_region" "current" {}
-
-data "aws_rds_engine_version" "this" {
-  engine  = local.database_engine
-  version = var.database_version
-  latest  = true
-}
-
 # Find log groups that were created for the application so we can ingest their
 # logs into Datadog.
 data "aws_cloudwatch_log_groups" "ecs" {

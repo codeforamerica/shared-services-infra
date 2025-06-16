@@ -56,7 +56,7 @@ module "app" {
   environment      = "development"
   program          = each.value.program
   services         = each.value.services
-  database_engine  = each.value.database.type
+  database_engine  = try(each.value.database.type, null)
   database_version = try(each.value.database.version, null)
   domain = try(
     each.value.domain,
