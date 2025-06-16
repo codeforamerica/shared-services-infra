@@ -9,14 +9,14 @@ module "service" {
   source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.3.0"
   for_each = var.services
 
-  project       = var.project
-  project_short = local.project_short
-  environment   = var.environment
-  public        = try(each.value.public, false)
-  service       = each.key
-  service_short = try(each.value.short_name, each.key)
+  project            = var.project
+  project_short      = local.project_short
+  environment        = var.environment
+  public             = try(each.value.public, false)
+  service            = each.key
+  service_short      = try(each.value.short_name, each.key)
   desired_containers = try(each.value.desired_containers, local.production ? 2 : 1)
-  health_check_path = try(each.value.health_check_path, "/health")
+  health_check_path  = try(each.value.health_check_path, "/health")
 
   domain    = var.domain
   subdomain = "${try(each.value.subdomain, "www")}${local.domain_prefix}"
@@ -95,4 +95,14 @@ resource "aws_vpc_security_group_ingress_rule" "database" {
   from_port                    = module.mssql.db_instance_port
   to_port                      = module.mssql.db_instance_port
   referenced_security_group_id = each.value.security_group_id
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "datadog" {
+  depends_on = [module.service]
+  for_each   = length(local.datadog_lambda) > 0 ? local.log_groups : toset([])
+
+  name            = "datadog"
+  log_group_name  = each.value
+  filter_pattern  = ""
+  destination_arn = data.aws_lambda_function.datadog["this"].arn
 }
