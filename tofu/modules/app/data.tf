@@ -9,3 +9,30 @@ data "aws_rds_engine_version" "this" {
   version = var.database_version
   latest  = true
 }
+
+# Find log groups that were created for the application so we can ingest their
+# logs into Datadog.
+data "aws_cloudwatch_log_groups" "ecs" {
+  depends_on = [module.service]
+  log_group_name_prefix = "/aws/ecs/${var.project}/${var.environment}/"
+}
+
+data "aws_cloudwatch_log_groups" "ecs_insights" {
+  depends_on = [module.service]
+  log_group_name_prefix = "/aws/ecs/containerinsights/${var.project}-${var.environment}"
+}
+
+data "aws_cloudwatch_log_groups" "rds" {
+  depends_on = [module.mssql]
+  log_group_name_prefix = "/aws/rds/instance/${var.project}-${var.environment}"
+}
+
+# Find the lambda function for the Datadog forwarder so that we can use it as a
+# destination for CloudWatch log subscriptions.
+data "aws_lambda_functions" "all" {}
+
+data "aws_lambda_function" "datadog" {
+  for_each = length(local.datadog_lambda) > 0 ? toset(["this"]) : toset([])
+
+  function_name = local.datadog_lambda[0]
+}

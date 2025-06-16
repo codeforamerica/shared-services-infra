@@ -96,3 +96,12 @@ resource "aws_vpc_security_group_ingress_rule" "database" {
   to_port                      = module.mssql.db_instance_port
   referenced_security_group_id = each.value.security_group_id
 }
+
+resource "aws_cloudwatch_log_subscription_filter" "datadog" {
+  for_each = length(local.datadog_lambda) > 0 ? local.log_groups : toset([])
+
+  name            = "datadog"
+  log_group_name  = each.value
+  filter_pattern  = ""
+  destination_arn = data.aws_lambda_function.datadog["this"].arn
+}
