@@ -7,8 +7,8 @@ database:
   type: mssql
 services:
   web:
-    dockerfile: ./src/DC.SEBT.Web/Dockerfile
-    health_check_path: /
+    dockerfile: ./src/DC.SEBT.Portal.Web/Dockerfile
+    health_check_path: /health
     context: ./src
     expose: 8080
     public: true

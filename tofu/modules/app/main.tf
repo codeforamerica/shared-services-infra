@@ -98,6 +98,7 @@ resource "aws_vpc_security_group_ingress_rule" "database" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "datadog" {
+  depends_on = [module.service]
   for_each = length(local.datadog_lambda) > 0 ? local.log_groups : toset([])
 
   name            = "datadog"
