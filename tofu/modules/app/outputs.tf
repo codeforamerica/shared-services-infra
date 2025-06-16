@@ -1,5 +1,6 @@
 output "log_groups" {
-  value = local.log_groups
+  description = "Log groups created for the application, used for log ingestion."
+  value       = local.log_groups
 }
 
 output "services" {
