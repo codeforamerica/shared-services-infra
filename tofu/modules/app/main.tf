@@ -28,15 +28,13 @@ module "service" {
   container_port           = try(each.value.expose, 3000)
   create_version_parameter = true
 
-  environment_variables = {
-    DATABASE_HOST = module.database.host
-    DATABASE_PORT = module.database.port
-  }
+  environment_variables = tomap({
+    for k, v in local.database_environment_variables : k => v if v != "" && v != null
+  })
 
-  environment_secrets = {
-    DATABASE_USERNAME = "${module.database.secret_arn}:username"
-    DATABASE_PASSWORD = "${module.database.secret_arn}:password"
-  }
+  environment_secrets = tomap({
+    for k, v in local.database_environment_secrets : k => v if v != "" && v != null
+  })
 
   tags = local.tags
 }

@@ -53,6 +53,7 @@ module "app" {
   for_each = local.apps
 
   project          = each.value.name
+  project_short    = try(each.value.name_short, each.value.name)
   environment      = "development"
   program          = each.value.program
   services         = each.value.services
