@@ -1,0 +1,15 @@
+title: Direct File Screen Scrapes
+name: df-all-screens-scrape
+name_short: df-scrape
+program: tax-benefits
+repo: codeforamerica/df-all-screens-scrape
+internal: true
+subdomain: tax
+services:
+  web:
+    health_check_path: /
+    expose: 9292
+    public: true
+    subdomain: scrapes
+    ports:
+      - 9292
