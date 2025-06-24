@@ -1,5 +1,5 @@
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.0.0"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=secret-name"
 
   project     = var.project
   environment = var.environment
@@ -33,9 +33,14 @@ module "service" {
   service_short      = try(each.value.short_name, each.key)
   desired_containers = try(each.value.desired_containers, local.production ? 2 : 1)
   health_check_path  = try(each.value.health_check_path, "/health")
+  logging_bucket     = var.logging_bucket
 
-  domain    = var.domain
-  subdomain = "${try(each.value.subdomain, "www")}${local.domain_prefix}"
+  domain            = var.domain
+  subdomain         = join(".", compact([try(each.value.subdomain, null), local.domain_prefix]))
+  create_repository = try(each.value.image, null) == null
+  image_url         = try(each.value.image, "")
+  repository_arn    = try(each.value.repository_arn, null)
+  image_tag         = try(each.value.image_tag, "latest")
   force_delete      = !local.production
   oidc_settings     = local.oidc_settings
 

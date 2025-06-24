@@ -26,6 +26,11 @@ variable "internal" {
   default     = true
 }
 
+variable "logging_bucket" {
+  description = "The S3 bucket used for logging."
+  type        = string
+}
+
 variable "logging_key_arn" {
   description = "The ARN of the KMS key used for logging."
   type        = string
