@@ -3,11 +3,27 @@ module "secrets" {
 
   project     = var.project
   environment = var.environment
+
+  secrets = var.internal ? {
+    "oidc" = {
+      description = "OIDC secrets for ${var.project} - ${var.environment}"
+      tags        = local.tags
+      # We need to set something here so that we can use the secret in the
+      # OIDC settings for the service module.
+      start_value = jsonencode({
+        "client_id"     = "abc",
+        "client_secret" = "123",
+      })
+    }
+  } : {}
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.3.0"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.4.0"
   for_each = var.services
+  depends_on = [
+    module.secrets
+  ]
 
   project            = var.project
   project_short      = local.project_short
@@ -20,6 +36,8 @@ module "service" {
 
   domain    = var.domain
   subdomain = "${try(each.value.subdomain, "www")}${local.domain_prefix}"
+  force_delete      = !local.production
+  oidc_settings     = local.oidc_settings
 
   vpc_id                   = var.vpc_id
   private_subnets          = var.private_subnets

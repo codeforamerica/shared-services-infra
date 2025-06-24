@@ -59,6 +59,7 @@ module "app" {
   services         = each.value.services
   database_engine  = try(each.value.database.type, null)
   database_version = try(each.value.database.version, null)
+  internal         = try(each.value.internal, true)
   domain = try(
     each.value.domain,
     try(each.value.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external
