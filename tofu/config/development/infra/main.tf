@@ -66,9 +66,13 @@ module "app" {
   )
 
   # If we're using one of our shared domain, put the application under a
-  # subdomain of its own.
-  subdomain = try(each.value.domain, null) != null ? null : each.key
+  # subdomain of its own unless the subdomain is explicitly set.
+  subdomain = try(
+    each.value.subdomain,
+    try(each.value.domain, null) != null ? null : each.key
+  )
 
+  logging_bucket  = module.logging.bucket
   logging_key_arn = module.logging.kms_key_arn
   vpc_id          = module.vpc.vpc_id
   private_subnets = module.vpc.private_subnets
