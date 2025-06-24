@@ -1,5 +1,5 @@
 module "database" {
-  source = "../database"
+  source   = "../database"
   for_each = var.database_engine != null ? toset(["this"]) : toset([])
 
   project         = var.project
@@ -26,8 +26,8 @@ resource "aws_vpc_security_group_ingress_rule" "database" {
 
 locals {
   database_environment_variables = {
-    DATABASE_HOST     = try(module.database["this"].host, null)
-    DATABASE_PORT     = try(module.database["this"].port, null)
+    DATABASE_HOST = try(module.database["this"].host, null)
+    DATABASE_PORT = try(module.database["this"].port, null)
   }
   database_environment_secrets = {
     DATABASE_USERNAME = length(module.database) > 0 ? "${module.database["this"].secret_arn}:username" : null
