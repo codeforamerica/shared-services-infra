@@ -20,6 +20,12 @@ variable "environment" {
   type        = string
 }
 
+variable "internal" {
+  description = "Whether this application is internal, meaning it should only be accessible to staff via an OIDC connection."
+  type        = bool
+  default     = true
+}
+
 variable "logging_key_arn" {
   description = "The ARN of the KMS key used for logging."
   type        = string
