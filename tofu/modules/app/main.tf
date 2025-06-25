@@ -4,18 +4,7 @@ module "secrets" {
   project     = var.project
   environment = var.environment
 
-  secrets = var.internal ? {
-    "oidc" = {
-      description = "OIDC secrets for ${var.project} - ${var.environment}"
-      tags        = local.tags
-      # We need to set something here so that we can use the secret in the
-      # OIDC settings for the service module.
-      start_value = jsonencode({
-        "client_id"     = "abc",
-        "client_secret" = "123",
-      })
-    }
-  } : {}
+  secrets = local.secrets
 }
 
 module "service" {
@@ -55,9 +44,18 @@ module "service" {
     for k, v in local.database_environment_variables : k => v if v != "" && v != null
   })
 
-  environment_secrets = tomap({
-    for k, v in local.database_environment_secrets : k => v if v != "" && v != null
-  })
+  environment_secrets = merge(
+    tomap({
+      for k, v in local.database_environment_secrets : k => v if v != "" && v != null
+    }),
+    {
+      for k, v in try(each.value.secrets, {}) :
+      k => (var.secrets[v.name].type == "json"
+        ? "${module.secrets.secrets[v.name].secret_arn}:${v.key}"
+        : module.secrets.secrets[v.name].secret_arn
+      )
+    }
+  )
 
   tags = local.tags
 }

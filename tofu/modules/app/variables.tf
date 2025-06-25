@@ -62,6 +62,16 @@ variable "public_subnets" {
   type        = list(string)
 }
 
+variable "secrets" {
+  description = "Secrets to create for use by the application."
+  type = map(object({
+    description = string
+    type        = string
+    keys        = optional(list(string), [])
+  }))
+  default = {}
+}
+
 variable "services" {
   description = "Services to deploy for the application."
   type        = map(any)

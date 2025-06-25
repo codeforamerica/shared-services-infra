@@ -59,6 +59,7 @@ module "app" {
   services         = each.value.services
   database_engine  = try(each.value.database.type, null)
   database_version = try(each.value.database.version, null)
+  secrets          = try(each.value.secrets, {})
   internal         = try(each.value.internal, true)
   domain = try(
     each.value.domain,
