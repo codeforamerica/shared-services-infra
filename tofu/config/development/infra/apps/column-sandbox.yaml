@@ -1,0 +1,31 @@
+title: Column Sandbox
+name: column-sandbox
+name_short: col-sbox
+program: tax-benefits
+repo: codeforamerica/column-sandbox
+internal: true
+subdomain: tax
+secrets:
+  client:
+    description: "Client ID and secret for Column Sandbox"
+    type: json
+    keys: [id, secret]
+services:
+  web:
+    health_check_path: /
+    expose: 3000
+    public: true
+    subdomain: column
+    ports:
+      - 3000
+    volumes:
+      data:
+        type: persistent
+        mount: /app/data
+    secrets:
+      CLIENT_ID:
+        name: client
+        key: id
+      CLIENT_SECRET:
+        name: client
+        key: secret
