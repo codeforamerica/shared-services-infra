@@ -18,6 +18,26 @@ locals {
   }
   production    = var.environment == "production"
   project_short = var.project_short != null ? var.project_short : var.project
+  secrets = merge({
+    for name, v in var.secrets : name => {
+      description = v.description
+      tags        = local.tags
+      start_value = v.type == "json" ? jsonencode({ for k in v.keys : k => "" }) : ""
+    }
+    },
+    !var.internal ? {} : {
+      "oidc" = {
+        description = "OIDC secrets for ${var.project} - ${var.environment}"
+        tags        = local.tags
+        # We need to set something here so that we can use the secret in the
+        # OIDC settings for the service module.
+        start_value = jsonencode({
+          client_id     = "abc",
+          client_secret = "123",
+        })
+      }
+    }
+  )
   tags = {
     application = "${var.project}-${var.environment}"
     program     = var.program
