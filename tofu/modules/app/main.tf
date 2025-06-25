@@ -8,7 +8,7 @@ module "secrets" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.4.0"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.5.0"
   for_each = var.services
   depends_on = [
     module.secrets
@@ -23,6 +23,7 @@ module "service" {
   desired_containers = try(each.value.desired_containers, local.production ? 2 : 1)
   health_check_path  = try(each.value.health_check_path, "/health")
   logging_bucket     = var.logging_bucket
+  volumes            = try(each.value.volumes, {})
 
   domain            = var.domain
   subdomain         = join(".", compact([try(each.value.subdomain, null), local.domain_prefix]))

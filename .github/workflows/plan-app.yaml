@@ -47,6 +47,10 @@ jobs:
           aws-region: us-east-1
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.9
+      - name: Display OpenTofu version
+        run: tofu version
       - name: Initialize OpenTofu
         working-directory: ./tofu/config/${{ inputs.environment }}/infra
         run: tofu init
