@@ -38,10 +38,11 @@ locals {
       }
     }
   )
-  tags = {
+  tags_base = {
     application = "${var.project}-${var.environment}"
     program     = var.program
     project     = var.project
     environment = var.environment
   }
+  tags = merge(local.tags_base, resource.aws_servicecatalogappregistry_application.application.application_tag)
 }

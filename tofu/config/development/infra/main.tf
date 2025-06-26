@@ -54,6 +54,7 @@ module "app" {
 
   project          = each.value.name
   project_short    = try(each.value.name_short, each.value.name)
+  application_name = each.value.title
   environment      = "development"
   program          = each.value.program
   services         = each.value.services

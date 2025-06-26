@@ -3,7 +3,7 @@ locals {
   prefix          = "${var.project}-${var.environment}"
   production      = var.environment == "production"
   tags = {
-    application = "${var.project}-${var.environment}"
+    application = local.prefix
     program     = var.program
     project     = var.project
     environment = var.environment
