@@ -47,7 +47,7 @@ variable "private_subnets" {
 }
 
 variable "program" {
-  description = "The program the application is associated with."
+  description = "The organizational program the application is associated with."
   type        = string
 }
 
