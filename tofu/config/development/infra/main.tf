@@ -48,12 +48,19 @@ module "vpc" {
   public_subnets = ["10.1.8.0/22", "10.1.12.0/22", "10.1.16.0/22"]
 }
 
+module "appspec" {
+  source   = "../../../modules/appspec"
+  for_each = local.specs
+
+  spec_path = "${abspath(path.module)}/apps/${each.value}.yaml"
+}
+
 module "app" {
   source   = "../../../modules/app"
-  for_each = local.apps
+  for_each = module.appspec
 
-  project          = each.value.name
-  project_short    = try(each.value.name_short, each.value.name)
+  project          = each.value.project
+  project_short    = each.value.project_short
   application_name = each.value.title
   environment      = "development"
   program          = each.value.program
@@ -62,16 +69,16 @@ module "app" {
   database_version = try(each.value.database.version, null)
   secrets          = try(each.value.secrets, {})
   internal         = try(each.value.internal, true)
-  domain = try(
-    each.value.domain,
-    try(each.value.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external
+  domain = (each.value.domain != null
+    ? each.value.domain
+    : try(each.value.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external
   )
 
   # If we're using one of our shared domain, put the application under a
   # subdomain of its own unless the subdomain is explicitly set.
-  subdomain = try(
-    each.value.subdomain,
-    try(each.value.domain, null) != null ? null : each.key
+  subdomain = try(each.value.subdomain != null
+    ? each.value.subdomain
+    : each.value.domain != null ? null : each.key
   )
 
   logging_bucket  = module.logging.bucket
