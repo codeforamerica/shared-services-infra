@@ -8,7 +8,7 @@ resource "aws_kms_key" "database" {
     region : data.aws_region.current.name,
   })))
 
-  tags = local.tags
+  tags = var.tags
 }
 
 resource "aws_kms_alias" "database" {
@@ -48,7 +48,7 @@ module "mssql" {
 
   allow_major_version_upgrade = !local.production
 
-  tags = local.tags
+  tags = var.tags
 }
 
 # Create an empty security group for the database. To avoid a circular
@@ -61,5 +61,5 @@ module "database_security_group" {
   name   = "${local.prefix}-database"
   vpc_id = var.vpc_id
 
-  tags = local.tags
+  tags = var.tags
 }

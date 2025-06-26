@@ -40,6 +40,12 @@ variable "secrets_key_arn" {
   type        = string
 }
 
+variable "tags" {
+  description = "A map of tags to apply to resources."
+  type        = map(string)
+  default     = {}
+}
+
 variable "vpc_id" {
   description = "The VPC ID where the application will be deployed."
   type        = string
