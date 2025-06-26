@@ -1,3 +1,8 @@
+variable "application_name" {
+  description = "The name of the application."
+  type        = string
+}
+
 variable "database_engine" {
   description = "The database engine to use for the application."
   type        = string

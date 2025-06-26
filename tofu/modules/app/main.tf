@@ -1,3 +1,10 @@
+resource "aws_servicecatalogappregistry_application" "application" {
+  name        = "${var.project}-${var.environment}"
+  description = var.application_name
+
+  tags = local.tags_base
+}
+
 module "secrets" {
   source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=secret-name"
 
@@ -5,6 +12,7 @@ module "secrets" {
   environment = var.environment
 
   secrets = local.secrets
+  tags    = local.tags
 }
 
 module "service" {

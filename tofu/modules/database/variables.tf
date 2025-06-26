@@ -25,11 +25,6 @@ variable "private_subnets" {
   type        = list(string)
 }
 
-variable "program" {
-  description = "The program the application is associated with."
-  type        = string
-}
-
 variable "project" {
   description = "The name of the project."
   type        = string
@@ -38,6 +33,12 @@ variable "project" {
 variable "secrets_key_arn" {
   description = "The ARN of the KMS key used for secrets."
   type        = string
+}
+
+variable "tags" {
+  description = "A map of tags to apply to resources."
+  type        = map(string)
+  default     = {}
 }
 
 variable "vpc_id" {
