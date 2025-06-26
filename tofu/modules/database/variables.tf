@@ -25,11 +25,6 @@ variable "private_subnets" {
   type        = list(string)
 }
 
-variable "program" {
-  description = "The program the application is associated with."
-  type        = string
-}
-
 variable "project" {
   description = "The name of the project."
   type        = string
