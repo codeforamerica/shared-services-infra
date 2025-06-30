@@ -11,6 +11,9 @@ on:
     branches:
       - docs
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     name: Deploy Documentation
