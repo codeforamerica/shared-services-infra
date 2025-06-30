@@ -56,10 +56,10 @@ extra:
       link: https://github.com/codeforamerica
       name: Code for America on GitHub
     - icon: fontawesome/brands/threads
-      link: https://www.twitter.com/codeforamerica
-      name: Code for America on Threads
-    - icon: fontawesome/brands/x-twitter
       link: https://www.threads.net/@codeforamerica
+      name: Code for America on Threads
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/codeforamerica.org
       name: Code for America on X (formerly Twitter)
 
 copyright: Produced by Code for America under the MIT license.

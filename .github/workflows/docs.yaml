@@ -9,7 +9,7 @@ on:
       - 'mkdocs.yml'
       - '.github/workflows/docs.yaml'
     branches:
-      - docs
+      - main
 
 permissions:
   contents: read
