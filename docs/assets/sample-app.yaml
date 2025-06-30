@@ -1,0 +1,37 @@
+title: My Application
+name: my-application
+name_short: my-app
+program: safety-net
+repo: codeforamerica/my-application
+internal: true
+subdomain: mine
+database:
+  type: mssql
+secrets:
+  shh:
+    description: "This is a secret for my application"
+    type: json
+    keys: [id, secret]
+services:
+  web:
+    # Optional, if you don't want a repo to be created to the service.
+    image: 012345678901.dkr.ecr.us-east-1.amazonaws.com/my-application-web
+    image_tag: latest
+    repository_arn: arn:aws:ecr:us-east-1:012345678901:repository/my-application-web
+    health_check_path: /
+    expose: 9292
+    public: true
+    subdomain: www
+    ports:
+      - 9292
+    volumes:
+      data:
+        type: persistent
+        mount: /app/data
+    secrets:
+      SECRET_ID:
+        name: shh
+        key: id
+      SECRET_SECRET:
+        name: shh
+        key: secret

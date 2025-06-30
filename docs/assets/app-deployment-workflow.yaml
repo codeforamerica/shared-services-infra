@@ -1,0 +1,92 @@
+name: Deploy application
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to.
+        default: development
+        required: true
+        type: environment
+      shared_services_ref:
+        description: The branch or tag of the shared services repository to use.
+        default: main
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  APPLICATION: my-app
+  ENVIRONMENT: ${{ inputs.environment }}
+  REMOTE_WORKFLOW: deploy-app.yaml
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - name: Log into Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Check if the image exists
+        id: image_exists
+        uses: k4kratik/container-image-check-custom-action@v4
+        with:
+          type: ecr
+          container_repo_name: "${{ env.APPLICATION }}-${{ env.ENVIRONMENT }}-web"
+          image_tag: ${{ github.sha }}
+      - name: Build and push Docker image
+        if: ${{ steps.image_exists.outputs.image_exists == 'false' }}
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: "${{ env.APPLICATION }}-${{ env.ENVIRONMENT }}-web"
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --platform linux/amd64 .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      - name: Update SSM Version Parameter
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "tag:$IMAGE_TAG"
+          aws ssm put-parameter \
+            --name  /$APPLICATION/$ENVIRONMENT/web/version \
+            --value "$IMAGE_TAG" \
+            --overwrite
+      - name: Trigger deployment from shared services
+        uses: codex-/return-dispatch@v2
+        id: dispatch
+        with:
+          token: ${{ secrets.DEPLOYMENT_PAT }}
+          ref: ${{ inputs.shared_services_ref || 'main' }}
+          repo: shared-services-infra
+          owner: codeforamerica
+          workflow: ${{ env.REMOTE_WORKFLOW }}
+          workflow_inputs: |
+            {
+              "environment": "${{ env.ENVIRONMENT }}",
+              "application": "${{ env.APPLICATION }}"
+            }
+      - name: Wait on Workflow
+        uses: lucasssvaz/wait-on-workflow@v1
+        id: waiter
+        with:
+          repository: codeforamerica/shared-services-infra
+          workflow: ${{ steps.dispatch.outputs.run_id }}
+      - name: Fail unless the workflow succeeded
+        if: ${{ steps.waiter.outputs.conclusion != 'success' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setFailed('Deployment workflow completed with stats: ${{ steps.waiter.outputs.conclusion }}')
