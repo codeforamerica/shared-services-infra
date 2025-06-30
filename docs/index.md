@@ -11,5 +11,5 @@ by all teams at Code for America.
 | [App Spec][appspec]       | A YAML file that defines an application and its required components. Used to deploy applications using Code for America's hosting model. |
 | [Shared Hosting][hosting] | A shared hosting service for prototypes, demos, and internal tooling.                                                                    |
 
-[appspec]: ./services/appspec
-[hosting]: ./services/hosting
+[appspec]: ./services/appspec/index.md
+[hosting]: ./services/hosting/index.md
