@@ -6,7 +6,7 @@ on:
     paths:
       # Only trigger on changes to documentation files.
       - 'docs/**'
-      - 'mkdocs.yml'
+      - 'mkdocs.yaml'
       - '.github/workflows/docs.yaml'
     branches:
       - main
