@@ -20,16 +20,20 @@ on:
 permissions:
   contents: read
 
-env:
-  AWS_REGION: ${{ env.AWS_REGION || 'us-east-1' }}
-  BUCKET_NAME: ${{ env.DOCS_BUCKET || 'docs.dev.services.cfa.codes' }}
-  PREFIX: ${{ env.PREFIX || 'shared-services' }}
+#env:
+#  AWS_REGION: ${{ env.AWS_REGION || 'us-east-1' }}
+#  BUCKET_NAME: ${{ env.DOCS_BUCKET || 'docs.dev.services.cfa.codes' }}
+#  PREFIX: ${{ env.PREFIX || 'shared-services' }}
 
 jobs:
   deploy:
     name: Deploy Documentation to ${{ inputs.environment }}
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ env.AWS_REGION || 'us-east-1' }}
+      BUCKET_NAME: ${{ env.DOCS_BUCKET || 'docs.dev.services.cfa.codes' }}
+      PREFIX: ${{ env.PREFIX || 'shared-services' }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up AWS credentials
