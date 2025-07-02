@@ -26,6 +26,12 @@ variable "logging_bucket" {
   type        = string
 }
 
+variable "prefixes" {
+  description = "A list of prefixes to create access policies for."
+  type        = set(string)
+  default     = []
+}
+
 variable "subdomain" {
   description = "The subdomain for the documentation hosting."
   type        = string

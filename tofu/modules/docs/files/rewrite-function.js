@@ -1,6 +1,6 @@
 function handler(event) {
-  var request = event.request;
-  var uri = request.uri;
+  const request = event.request;
+  const uri = request.uri;
 
   // If the request is being made to a directory (e.g. / or /docs), we want to
   // append "index.html" so that S3 serves the proper object. If the path
