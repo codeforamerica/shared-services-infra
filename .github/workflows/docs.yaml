@@ -14,6 +14,7 @@ on:
       - 'docs/**'
       - 'mkdocs.yaml'
       - '.github/workflows/docs.yaml'
+      - '*.md'
     branches:
       - main
 
@@ -22,8 +23,8 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy Documentation to ${{ inputs.environment }}
-    environment: ${{ inputs.environment }}
+    name: Deploy Documentation to ${{ inputs.environment || 'development'}}
+    environment: ${{ inputs.environment || 'development'}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +44,13 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material markdown-callouts mdx_truly_sane_lists mkdocs-nav-weight pymdown-extensions
+      - name: Install python dependencies
+        run: |
+          pip install \
+            mkdocs-material \
+            markdown-callouts \
+            mdx_truly_sane_lists \
+            mkdocs-nav-weight \
+            pymdown-extensions
       - run: mkdocs build
       - run: aws s3 sync ./site "s3://${{ env.DOCS_BUCKET || 'docs.dev.services.cfa.codes' }}/${{ env.PREFIX || 'shared-services' }}"

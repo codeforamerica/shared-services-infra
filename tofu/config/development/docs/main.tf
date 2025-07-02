@@ -16,6 +16,15 @@ module "docs" {
   domain       = "dev.services.cfa.codes"
   subdomain    = "docs"
 
+  # TODO: Get these from app specs.
+  prefixes = [
+    "cmr-entity-resolution",
+    "document-transfer-service",
+    "shared-services",
+    "tax-benefits-backend",
+    "tofu-modules"
+  ]
+
   # Use the same VPC we use for shared hosting.
   # TODO: Use data resources to look this up.
   logging_bucket = "shared-services-development-logs"
