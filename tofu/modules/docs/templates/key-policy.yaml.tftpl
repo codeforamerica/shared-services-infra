@@ -1,0 +1,37 @@
+Version: "2012-10-17"
+Id: key-policy-${bucket_name}
+Statement:
+- Sid: Enable IAM User Permissions
+  Effect: Allow
+  Principal:
+    AWS: arn:${partition}:iam::${account_id}:root
+  Action: kms:*
+  Resource: "*"
+- Sid: Allow S3 to encrypt and decrypt objects
+  Effect: Allow
+  Principal:
+    AWS: "*"
+  Action:
+  - kms:Encrypt
+  - kms:Decrypt
+  - kms:ReEncrypt*
+  - kms:GenerateDataKey*
+  Resource: "*"
+  Condition:
+    StringLike:
+      kms:CallerAccount: "${account_id}"
+      kms:EncryptionContext:aws:s3:arn:
+        - arn:${partition}:s3:::${bucket_name}
+        - arn:${partition}:s3:::${bucket_name}/*
+- Sid: Allow CloudFront to decrypt bucket objects
+  Effect: Allow
+  Principal:
+    Service: cloudfront.amazonaws.com
+  Action:
+  - kms:Decrypt
+  - kms:Encrypt
+  - kms:GenerateDataKey*
+  Resource: "*"
+  Condition:
+    StringEquals:
+      aws:SourceArn: "${cloudfront_distribution_arn}"
