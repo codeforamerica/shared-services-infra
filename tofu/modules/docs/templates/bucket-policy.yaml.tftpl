@@ -22,3 +22,14 @@ Statement:
   Condition:
     StringEquals:
       aws:SourceVpce: "${vpc_endpoint_id}"
+- Sid: Allow CloudFront to serve content
+  Effect: Allow
+  Principal:
+    Service: cloudfront.amazonaws.com
+  Action:
+  - s3:GetObject
+  Resource:
+  - "${bucket_arn}/*"
+  Condition:
+    ArnLike:
+      aws:SourceArn: "${cloudfront_distribution_arn}"

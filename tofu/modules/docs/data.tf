@@ -18,3 +18,7 @@ data "aws_network_interface" "s3" {
 
   id = each.value
 }
+
+data "aws_cloudfront_cache_policy" "endpoint" {
+  name = "Managed-CachingOptimized"
+}

@@ -23,3 +23,15 @@ Statement:
       kms:EncryptionContext:aws:s3:arn:
         - arn:${partition}:s3:::${bucket_name}
         - arn:${partition}:s3:::${bucket_name}/*
+- Sid: Allow CloudFront to decrypt bucket objects
+  Effect: Allow
+  Principal:
+    Service: cloudfront.amazonaws.com
+  Action:
+  - kms:Decrypt
+  - kms:Encrypt
+  - kms:GenerateDataKey*
+  Resource: "*"
+  Condition:
+    StringEquals:
+      aws:SourceArn: "${cloudfront_distribution_arn}"
