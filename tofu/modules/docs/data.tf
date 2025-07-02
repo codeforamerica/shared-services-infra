@@ -13,12 +13,6 @@ data "aws_vpc_endpoint" "s3" {
   service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
 }
 
-data "aws_network_interface" "s3" {
-  for_each = toset(data.aws_vpc_endpoint.s3.network_interface_ids)
-
-  id = each.value
-}
-
 data "aws_cloudfront_cache_policy" "endpoint" {
   name = "Managed-CachingOptimized"
 }

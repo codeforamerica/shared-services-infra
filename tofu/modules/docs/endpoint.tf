@@ -20,6 +20,8 @@ resource "aws_cloudfront_function" "endpoint_rewrite" {
 }
 
 # TODO: Request OIDC authentication for the CloudFront distribution.
+# TODO: Use a WAF?
+#trivy:ignore:AVD-AWS-0011
 resource "aws_cloudfront_distribution" "endpoint" {
   enabled             = true
   comment             = "Serve static documentation from S3."

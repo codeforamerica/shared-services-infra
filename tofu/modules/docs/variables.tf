@@ -26,11 +26,6 @@ variable "logging_bucket" {
   type        = string
 }
 
-variable "public_subnets" {
-  description = "List of public subnets for the application."
-  type        = list(string)
-}
-
 variable "subdomain" {
   description = "The subdomain for the documentation hosting."
   type        = string

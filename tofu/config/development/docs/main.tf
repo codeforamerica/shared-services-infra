@@ -20,9 +20,4 @@ module "docs" {
   # TODO: Use data resources to look this up.
   logging_bucket = "shared-services-development-logs"
   vpc_id         = "vpc-024d66fcc4f521d0a"
-  public_subnets = [
-    "subnet-04a634af483d94adb",
-    "subnet-0ff03c3903c4c785c",
-    "subnet-037226b6f514e6dd1"
-  ]
 }

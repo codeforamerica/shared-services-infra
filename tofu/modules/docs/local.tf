@@ -1,7 +1,6 @@
 locals {
   fqdn   = "${var.subdomain}.${var.domain}"
   prefix = "cfa-documentation-${var.environment}"
-  s3_ips = [for ni in data.aws_network_interface.s3 : ni.private_ip]
   tags_base = {
     application = local.prefix
     program     = "engineering"
