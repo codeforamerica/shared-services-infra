@@ -18,6 +18,7 @@ module "docs" {
 
   # TODO: Get these from app specs.
   prefixes = [
+    "cfa-security-controls",
     "cmr-entity-resolution",
     "document-transfer-service",
     "shared-services",
@@ -29,4 +30,17 @@ module "docs" {
   # TODO: Use data resources to look this up.
   logging_bucket = "shared-services-development-logs"
   vpc_id         = "vpc-024d66fcc4f521d0a"
+}
+
+# Create a redirect from the old documentation domain to the new one.
+module "redirect" {
+  # TODO: Publish this as a module.
+  source = "../../../modules/cloudfront-redirect"
+
+  source_domain = "dev.docs.cfa.codes"
+  destination   = "https://docs.dev.services.cfa.codes"
+
+  # The hosted zone for this domain is in another account, so we'll crete the
+  # records manually.
+  create_records = false
 }
