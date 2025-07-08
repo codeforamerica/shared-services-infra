@@ -35,6 +35,12 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
+  logging_config {
+    include_cookies = false
+    bucket          = "${var.logging_bucket}.s3.amazonaws.com"
+    prefix          = "cloudfront/${local.fqdn}"
+  }
+
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]

@@ -40,6 +40,9 @@ module "redirect" {
   source_domain = "dev.docs.cfa.codes"
   destination   = "https://docs.dev.services.cfa.codes"
 
+  # TODO: Use data resources to look this up.
+  logging_bucket = "shared-services-development-logs"
+
   # The hosted zone for this domain is in another account, so we'll crete the
   # records manually.
   create_records = false
