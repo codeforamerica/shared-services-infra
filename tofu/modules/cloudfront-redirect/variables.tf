@@ -9,6 +9,11 @@ variable "destination" {
   description = "Destination for redirects, including scheme (e.g. https://my.domain.com)."
 }
 
+variable "logging_bucket" {
+  description = "The S3 bucket used for logging."
+  type        = string
+}
+
 variable "static" {
   type        = bool
   description = "Redirect to the destination without passing the path."

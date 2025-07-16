@@ -14,6 +14,8 @@ resource "aws_cloudfront_function" "this" {
   }
 }
 
+# TODO: Use a WAF?
+#trivy:ignore:AVD-AWS-0011
 resource "aws_cloudfront_distribution" "this" {
   enabled         = true
   comment         = "Redirect ${local.fqdn} to ${var.destination}."
@@ -45,7 +47,7 @@ resource "aws_cloudfront_distribution" "this" {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "redirect"
-    viewer_protocol_policy = "allow-all"
+    viewer_protocol_policy = "https-only"
     min_ttl                = 0
     default_ttl            = 0
     max_ttl                = 0
