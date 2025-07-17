@@ -1,0 +1,6 @@
+title: Tax Benefits Backend
+name: tax-benefits-backend
+program: tax-benefits
+repo: codeforamerica/tax-benefits-backend
+docs:
+  enabled: true

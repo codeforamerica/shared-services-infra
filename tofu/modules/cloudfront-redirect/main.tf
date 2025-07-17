@@ -3,7 +3,7 @@ resource "aws_cloudfront_function" "this" {
   runtime = "cloudfront-js-2.0"
   comment = "Redirect ${local.fqdn} to ${var.destination}."
   publish = true
-  code = templatefile("${path.module}/templates/function.js", {
+  code = templatefile("${path.module}/templates/function.js.tftpl", {
     destination = var.destination
     static      = var.static
     status_code = var.status_code

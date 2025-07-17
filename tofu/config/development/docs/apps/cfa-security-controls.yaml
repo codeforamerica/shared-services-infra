@@ -1,0 +1,6 @@
+title: Code for America Security Controls
+name: cfa-security-controls
+program: engineering
+repo: codeforamerica/cfa-security-controls
+docs:
+  enabled: false

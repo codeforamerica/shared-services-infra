@@ -1,0 +1,6 @@
+title: CMR Entity Resolution
+name: cmr-entity-resolution
+program: cmr
+repo: codeforamerica/cmr-entity-resolution
+docs:
+  enabled: true

@@ -1,3 +1,9 @@
+variable "apps" {
+  description = "Applications to host documentation for."
+  type        = any
+  default     = {}
+}
+
 variable "bucket_name" {
   description = "The name of the S3 bucket for documentation hosting."
   type        = string
@@ -24,12 +30,6 @@ variable "force_delete" {
 variable "logging_bucket" {
   description = "The S3 bucket used for logging."
   type        = string
-}
-
-variable "prefixes" {
-  description = "A list of prefixes to create access policies for."
-  type        = set(string)
-  default     = []
 }
 
 variable "subdomain" {

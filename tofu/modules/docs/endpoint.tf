@@ -12,7 +12,7 @@ resource "aws_cloudfront_function" "endpoint_rewrite" {
   runtime = "cloudfront-js-2.0"
   publish = true
 
-  code = file("${path.module}/files/rewrite-function.js")
+  code = file("${local.file_dir}/rewrite-function.js")
 
   lifecycle {
     create_before_destroy = true
@@ -23,6 +23,8 @@ resource "aws_cloudfront_function" "endpoint_rewrite" {
 # TODO: Use a WAF?
 #trivy:ignore:AVD-AWS-0011
 resource "aws_cloudfront_distribution" "endpoint" {
+  depends_on = [aws_lambda_function.oidc]
+
   enabled             = true
   comment             = "Serve static documentation from S3."
   is_ipv6_enabled     = true
@@ -51,13 +53,14 @@ resource "aws_cloudfront_distribution" "endpoint" {
     max_ttl          = 0
     min_ttl          = 0
 
-    cache_policy_id = data.aws_cloudfront_cache_policy.endpoint.id
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.endpoint_rewrite.arn
-    }
-
+    cache_policy_id        = data.aws_cloudfront_cache_policy.endpoint.id
     viewer_protocol_policy = "redirect-to-https"
+
+    lambda_function_association {
+      event_type   = "viewer-request"
+      lambda_arn   = aws_lambda_function.oidc.qualified_arn
+      include_body = false
+    }
   }
 
   restrictions {

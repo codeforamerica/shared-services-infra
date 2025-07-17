@@ -1,3 +1,23 @@
+module "secrets" {
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=secret-name"
+
+  project     = "docs"
+  environment = var.environment
+
+  secrets = {
+    oidc = {
+      description = "OIDC credentials for static documentation hosting"
+      type        = "json"
+      start_value = jsonencode({
+        client_id     = "",
+        client_secret = "",
+      })
+    }
+  }
+
+  tags = local.tags
+}
+
 resource "aws_servicecatalogappregistry_application" "docs" {
   name        = local.prefix
   description = "Static documentation hosting for Code for America."
@@ -8,7 +28,7 @@ resource "aws_servicecatalogappregistry_application" "docs" {
 resource "aws_kms_key" "docs" {
   description         = "Encryption key for static documentation hosting"
   enable_key_rotation = true
-  policy = jsonencode(yamldecode(templatefile("${path.module}/templates/key-policy.yaml.tftpl", {
+  policy = jsonencode(yamldecode(templatefile("${local.template_dir}/key-policy.yaml.tftpl", {
     account_id : data.aws_caller_identity.identity.account_id,
     partition : data.aws_partition.current.partition,
     bucket_name : var.bucket_name,
@@ -34,7 +54,7 @@ module "bucket" {
   versioning_status      = "Enabled"
   force_destroy          = var.force_delete
 
-  bucket_policy = jsonencode(yamldecode(templatefile("${path.module}/templates/bucket-policy.yaml.tftpl", {
+  bucket_policy = jsonencode(yamldecode(templatefile("${local.template_dir}/bucket-policy.yaml.tftpl", {
     bucket_arn : module.bucket.arn,
     vpc_endpoint_id : data.aws_vpc_endpoint.s3.id,
     cloudfront_distribution_arn : aws_cloudfront_distribution.endpoint.arn,
@@ -46,14 +66,14 @@ module "bucket" {
 resource "aws_s3_object" "robots" {
   bucket        = module.bucket.bucket
   key           = "robots.txt"
-  source        = "${path.module}/files/robots.txt"
+  source        = "${local.file_dir}/robots.txt"
   force_destroy = var.force_delete
 }
 
 resource "aws_s3_object" "index" {
-  bucket        = module.bucket.bucket
-  key           = "index.html"
-  source        = "${path.module}/files/index.html"
-  content_type  = "text/html"
-  force_destroy = var.force_delete
+  bucket         = module.bucket.bucket
+  key            = "index.html"
+  content_base64 = base64encode(templatefile("${local.template_dir}/index.html.tftpl", { apps = local.apps }))
+  content_type   = "text/html"
+  force_destroy  = var.force_delete
 }

@@ -1,0 +1,18 @@
+Version: '2012-10-17'
+Statement:
+  - Sid: CloudWatchLogs
+    Effect: Allow
+    Action:
+      - logs:CreateLogGroup
+      - logs:CreateLogStream
+      - logs:PutLogEvents
+    Resource:
+      - "arn:${partition}:logs:${region}:${account_id}:log-group:/aws/lambda/${function_name}"
+      - "arn:${partition}:logs:${region}:${account_id}:log-group:/aws/lambda/${function_name}:*"
+      - "arn:${partition}:logs:${region}:${account_id}:log-group:/aws/lambda/*.${function_name}"
+      - "arn:${partition}:logs:${region}:${account_id}:log-group:/aws/lambda/*.${function_name}:*"
+  - Sid: SecretsManager
+    Effect: Allow
+    Action:
+      - secretsmanager:GetSecretValue
+    Resource: ${secret_arn}
