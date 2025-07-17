@@ -11,6 +11,24 @@ resource "aws_iam_policy" "prefix" {
   })))
 }
 
+data "aws_iam_policy_document" "lambda_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com", "edgelambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "oidc_function" {
+  name               = "${local.prefix}-oidc-function"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+}
+
 resource "aws_iam_policy" "oidc_function" {
   name        = "${local.prefix}-oidc-function"
   path        = "/"
@@ -25,7 +43,7 @@ resource "aws_iam_policy" "oidc_function" {
   })))
 }
 
-resource "aws_iam_role_policy_attachment" "test-attach" {
+resource "aws_iam_role_policy_attachment" "oidc_function" {
   role       = aws_iam_role.oidc_function.name
   policy_arn = aws_iam_policy.oidc_function.arn
 }

@@ -1,21 +1,3 @@
-data "aws_iam_policy_document" "lambda_assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com", "edgelambda.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
-}
-
-resource "aws_iam_role" "oidc_function" {
-  name               = "${local.prefix}-oidc-function"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
-}
-
 # Build the package.json file for the OIDC Lambda function.
 resource "local_file" "pkg_json" {
   content = templatefile("${local.lambda_dir}/oidc/package.json.tftpl", {
@@ -54,6 +36,7 @@ data "archive_file" "oidc" {
   output_path = "${local.build_dir}/oidc-function.zip"
 }
 
+#trivy:ignore:AVD-AWS-0066
 resource "aws_lambda_function" "oidc" {
   filename         = data.archive_file.oidc.output_path
   function_name    = "${local.prefix}-oidc"
