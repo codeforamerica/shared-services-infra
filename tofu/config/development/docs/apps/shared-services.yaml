@@ -1,0 +1,6 @@
+title: Code for America Shared Services
+name: shared-services
+program: engineering
+repo: codeforamerica/shared-services
+docs:
+  enabled: true

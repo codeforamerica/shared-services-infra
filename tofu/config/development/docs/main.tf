@@ -7,6 +7,13 @@ terraform {
   }
 }
 
+module "appspec" {
+  source   = "../../../modules/appspec"
+  for_each = local.specs
+
+  spec_path = "${abspath(path.module)}/apps/${each.value}.yaml"
+}
+
 module "docs" {
   source = "../../../modules/docs"
 
@@ -15,16 +22,7 @@ module "docs" {
   force_delete = true
   domain       = "dev.services.cfa.codes"
   subdomain    = "docs"
-
-  # TODO: Get these from app specs.
-  prefixes = [
-    "cfa-security-controls",
-    "cmr-entity-resolution",
-    "document-transfer-service",
-    "shared-services",
-    "tax-benefits-backend",
-    "tofu-modules"
-  ]
+  apps         = module.appspec
 
   # Use the same VPC we use for shared hosting.
   # TODO: Use data resources to look this up.

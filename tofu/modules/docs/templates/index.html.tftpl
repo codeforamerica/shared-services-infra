@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    li { padding-left: 0.5em; }
+
+    li.private::marker {
+      content: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24'><path stroke-linecap='round' stroke-linejoin='round' d='M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z' fill='none' stroke='red' stroke-width='3' /></svg>")
+    }
+
+    li.public::marker {
+      content: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24'><path stroke-linecap='round' stroke-linejoin='round' d='M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z' fill='none' stroke='green' stroke-width='3' /></svg>")
+    }
+  </style>
+  <title>Code for America Engineering Documentation (Development)</title>
+</head>
+<body>
+  <h1>Code for America Engineering Documentation (Development)</h1>
+
+  <ul>
+    %{ for prefix, app in apps ~}
+      <li class="${app.docs.private ? "private" : "public"}">
+        <a href="/${prefix}/">${app.title}</a>
+      </li>
+    %{ endfor ~}
+  </ul>
+</body>
+</html>

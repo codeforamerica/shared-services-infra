@@ -1,0 +1,6 @@
+title: Code for America OpenTofu Modules
+name: tofu-modules
+program: engineering
+repo: codeforamerica/tofu-modules
+docs:
+  enabled: true

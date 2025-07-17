@@ -8,6 +8,11 @@ output "endpoint_url" {
   value       = module.docs.endpoint_url
 }
 
+output "prefixes" {
+  description = "Prefixes that have been configured for documentation."
+  value       = module.docs.prefixes
+}
+
 output "redirect_dns" {
   description = "DNS information for the CloudFront redirect needed to create DNS records."
   value       = module.redirect.cloudfront_dns

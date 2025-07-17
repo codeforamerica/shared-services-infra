@@ -3,6 +3,11 @@ output "database" {
   value       = try(local.raw.database, {})
 }
 
+output "docs" {
+  description = "Configuration for documentation."
+  value       = module.docs
+}
+
 output "domain" {
   description = "The DNS domain for the app."
   value       = try(local.raw.domain, null)
