@@ -47,5 +47,5 @@ resource "aws_lambda_function" "oidc" {
 
   runtime = "nodejs22.x"
 
-  tags = local.tags
+  tags = merge(local.tags, { use = "edge-function" })
 }

@@ -60,7 +60,22 @@ module "bucket" {
     cloudfront_distribution_arn : aws_cloudfront_distribution.endpoint.arn,
   })))
 
-  tags = local.tags
+  s3_logging = {
+    target_bucket = var.logging_bucket
+    target_prefix = "${local.aws_logs_path}/s3accesslogs/${var.bucket_name}"
+  }
+
+  lifecycle_configuration = [{
+      id      = "static-site"
+      status  = "Enabled"
+      prefix  = ""
+      abort_incomplete_multipart_upload_days = 7
+      noncurrent_version_expiration = {
+        noncurrent_days = 30
+      }
+  }]
+
+  tags = merge(local.tags, { use = "static-site" })
 }
 
 resource "aws_s3_object" "robots" {
@@ -76,4 +91,14 @@ resource "aws_s3_object" "index" {
   content_base64 = base64encode(templatefile("${local.template_dir}/index.html.tftpl", { apps = local.apps }))
   content_type   = "text/html"
   force_destroy  = var.force_delete
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "datadog" {
+  depends_on = [aws_lambda_function.oidc]
+  for_each   = length(local.datadog_lambda) > 0 ? local.log_groups : toset([])
+
+  name            = "datadog"
+  log_group_name  = each.value
+  filter_pattern  = ""
+  destination_arn = data.aws_lambda_function.datadog["this"].arn
 }
