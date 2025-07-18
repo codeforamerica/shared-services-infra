@@ -84,6 +84,21 @@ supported.
 `version` defines the version of the specified database engine to use. If not
 provided, the latest supported version will be used.
 
+## `docs`
+
+`docs` defines configuration for the application's documentation, if any.
+
+### `docs.enabled`
+
+`enabled` defines whether the documentation is enabled for the application. If
+not provided, defaults to `true` when other attributes a present in `docs.*`,
+otherwise defaults to `false`.
+
+### `docs.private`
+
+`private` defines whether the documentation is private to the organization,
+requiring authentication to access. Defaults to `false` if not provided.
+
 ## `secrets`
 
 `secrets` defines any secrets that the application requires. This is a map of
