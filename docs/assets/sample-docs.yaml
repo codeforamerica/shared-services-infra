@@ -1,0 +1,7 @@
+title: My Application
+name: my-application
+program: safety-net
+repo: codeforamerica/my-application
+docs:
+  enabled: true
+  private: true

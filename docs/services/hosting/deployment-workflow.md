@@ -31,6 +31,30 @@ Follow the steps below to add the workflow to your repository:
 1. Add your additional build steps, as needed, before the
    `Build and push Docker image` step
 
+## Environment
+
+> [!TIP]
+> The DevOps team will create the initial environment for you and set the
+> appropriate secrets and variables. You can then modify the environment as
+> needed.
+
+For this workflow to function correctly, you will need to set up one or more
+environments for it be run against. The environment should include the following
+secrets and variables:
+
+### Secrets
+
+| Name                    | Description                                                           |
+|-------------------------|-----------------------------------------------------------------------|
+| `AWS_ACCESS_KEY_ID`     | AWS access key ID with access to the shared services environment.     |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret access key with access to the shared services environment. |
+
+### Variables
+
+| Name         | Description                                                      |
+|--------------|------------------------------------------------------------------|
+| `AWS_REGION` | The AWS region where the shared services environment is located. |
+
 ## How it works
 
 The deployment workflow is designed to automate the process of building and
@@ -79,7 +103,7 @@ sequenceDiagram
 
 ## Template
 
-```yaml
+```yaml title=".github/workflows/deploy.yaml"
 --8<-- "docs/assets/app-deployment-workflow.yaml"
 ```
 
