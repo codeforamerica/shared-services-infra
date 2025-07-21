@@ -1,5 +1,6 @@
 ---
 title: Overview
+weight: -10
 ---
 # App Spec
 
@@ -19,7 +20,7 @@ supported options and their details.
 
 ## Example
 
-```yaml
+```yaml title="app.yaml"
 --8<-- "docs/assets/sample-app.yaml"
 ```
 

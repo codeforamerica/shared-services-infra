@@ -1,6 +1,6 @@
 ---
 title: Usage
-weight: 10
+weight: -5
 ---
 # Shared Hosting Usage
 
@@ -17,7 +17,7 @@ that describes the application, its containers, volumes, and other settings.
 1. Open a pull request to the `main` branch of the repository
 1. Ensure that status checks pass for the pull request
 
-## Review and setup
+### Review and setup
 
 The DevOps team will review the pull request and, once approved, will create
 resources in your repository that will allow you to deploy your application.
@@ -46,7 +46,7 @@ This will deploy your application to the _development_ environment of the shared
 hosting service. Review the deployed application to ensure it works as expected.
 
 You can continue to make changes to your application and push updates using the
-deployment workflow.
+[deployment workflow][deployment].
 
 ## Promoting your application
 
@@ -57,3 +57,7 @@ such, it's susceptible to changes and may not be stable.
 > While this service is in its experiemntal phase, we do not yet have a
 > production environment for shared hosting. We recommend using this service
 > for development and testing purposes only.
+
+[appspec]: ../appspec/index.md
+[deployment]: deployment-workflow.md
+[repo]: https://github.com/codeforamerica/shared-hosting-infra
