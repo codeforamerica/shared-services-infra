@@ -4,4 +4,4 @@ program: safety-net
 repo: codeforamerica/my-application
 docs:
   enabled: true
-  private: true
+  private: false

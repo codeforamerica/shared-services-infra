@@ -17,6 +17,18 @@ any services, but it must have a [`docs`][appspec.docs] section defined.
 
 ## Adding your documentation
 
+> [!CAUTION]
+> By default, documentation is public and can be accessed by anyone with the
+> URL. At Code for America, we like to work in the public and making your
+> documentation available to all is a reflection of that. As such, documentation
+> should not include any sensitive information, using only fake data or example
+> content.
+>
+> If, for some reason, you have documentation that needs to be made private, you
+> can set the `private` field in your app spec to `true`. This will require
+> requests to be authenticated using Okta before allowing access to the
+> documentation.
+
 1. Clone the [`codeforamerica/shared-hosting-infra`][repo] repository
 1. Create a new branch for your changes
 1. Add your app sec file in the `tofu/config/development/docs/apps`
