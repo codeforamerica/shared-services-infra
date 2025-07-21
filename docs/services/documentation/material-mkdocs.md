@@ -1,5 +1,8 @@
 # Material for MkDocs
 
+> [!WARNING]
+> This page is incomplete and could use expanding.
+
 [Material for MkDocs][material-mkdocs] is a distribution of [MkDocs] that
 bundles a number of plugins and a theme based on Google's [Material
 Design][material-design]. It provides a clean, modern look and feel for your

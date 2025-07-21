@@ -1,6 +1,5 @@
 ---
 title: Deployment Workflow
-weight: 20
 ---
 # Documentation Deployment Workflow
 
