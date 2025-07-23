@@ -21,6 +21,7 @@ resource "null_resource" "npm_install" {
 
   triggers = {
     package_json_hash = sha256(local_file.pkg_json.content)
+    modules_exist = fileexists("${local.build_dir}/oidc/node_modules/.package-lock.json")
   }
 
   provisioner "local-exec" {
