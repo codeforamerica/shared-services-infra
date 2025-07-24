@@ -41,6 +41,12 @@ characters except for dash (`-`).
 application. It should include the owner and repository name in the format
 `owner/repo`. This is reserved for future use.
 
+## `enabled`
+
+`enabled` defines whether the application is enabled. If set to `false`, the
+application will not be deployed and will be destroyed if it exists. Defaults
+to `true` if not provided.
+
 ## `internal`
 
 `internal` defines whether the application is internal to the organization only.
