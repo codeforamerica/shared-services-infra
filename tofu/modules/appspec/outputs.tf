@@ -13,6 +13,11 @@ output "domain" {
   value       = try(local.raw.domain, null)
 }
 
+output "enabled" {
+  description = "Whether the application is enabled."
+  value       = try(local.raw.enabled, true)
+}
+
 output "internal" {
   description = "Whether this application is internal, meaning it should only be accessible to staff via an OIDC connection."
   value       = try(local.raw.internal, true)
