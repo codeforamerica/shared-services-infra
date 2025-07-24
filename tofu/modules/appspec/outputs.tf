@@ -1,6 +1,6 @@
 output "database" {
   description = "The database configuration for the application."
-  value       = try(local.raw.database, {})
+  value       = module.database
 }
 
 output "docs" {

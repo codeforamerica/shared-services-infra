@@ -7,6 +7,7 @@ module "database" {
   private_subnets = var.private_subnets
   vpc_id          = var.vpc_id
   tags            = local.tags
+  force_delete    = !local.production
 
   database_engine  = var.database_engine
   database_version = var.database_version
