@@ -15,12 +15,6 @@ variable "environment" {
   type        = string
 }
 
-variable "force_delete" {
-  description = "Force deletion of resources. If changing to true, be sure to apply before destroying."
-  type        = bool
-  default     = false
-}
-
 variable "logging_key_arn" {
   description = "The ARN of the KMS key used for logging."
   type        = string
