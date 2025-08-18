@@ -16,7 +16,7 @@ module "secrets" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.5.1"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=target-group-suffix"
   for_each = var.services
   depends_on = [
     module.secrets
@@ -48,6 +48,7 @@ module "service" {
   logging_key_id           = var.logging_key_arn
   container_port           = try(each.value.expose, 3000)
   create_version_parameter = true
+  use_target_group_port_suffix = true
 
   environment_variables = tomap({
     for k, v in local.database_environment_variables : k => v if v != "" && v != null
