@@ -5,6 +5,7 @@ program: tax-benefits
 repo: codeforamerica/column-sandbox
 internal: true
 subdomain: tax
+enabled: false
 secrets:
   CLIENT_ID:
     description: Client ID and for Column Sandbox
