@@ -39,7 +39,7 @@ resource "aws_iam_policy" "oidc_function" {
     partition : data.aws_partition.current.partition,
     region : data.aws_region.current.name,
     function_name : "${local.prefix}-oidc",
-    secret_arn : module.secrets.secrets["oidc"].secret_arn,
+    secret_arn : module.secrets.secrets["OIDC_SETTINGS"].secret_arn,
   })))
 }
 

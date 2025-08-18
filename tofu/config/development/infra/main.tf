@@ -57,7 +57,7 @@ module "appspec" {
 
 module "app" {
   source   = "../../../modules/app"
-  for_each = {for app, spec in module.appspec : app => spec if spec.enabled}
+  for_each = { for app, spec in module.appspec : app => spec if spec.enabled }
 
   project          = each.value.project
   project_short    = each.value.project_short

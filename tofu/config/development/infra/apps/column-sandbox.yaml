@@ -6,10 +6,12 @@ repo: codeforamerica/column-sandbox
 internal: true
 subdomain: tax
 secrets:
-  client:
-    description: "Client ID and secret for Column Sandbox"
-    type: json
-    keys: [id, secret]
+  CLIENT_ID:
+    description: Client ID and for Column Sandbox
+    type: string
+  CLIENT_SECRET:
+    description: Client secret for Column Sandbox
+    type: string
 services:
   web:
     health_check_path: /
@@ -24,8 +26,6 @@ services:
         mount: /app/data
     secrets:
       CLIENT_ID:
-        name: client
-        key: id
+        name: CLIENT_ID
       CLIENT_SECRET:
-        name: client
-        key: secret
+        name: CLIENT_SECRET
