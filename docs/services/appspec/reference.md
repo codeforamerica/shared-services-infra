@@ -121,11 +121,20 @@ Manager. You can find them under the path `<name>/<environment>/<secret.name>`.
 The application may require a new deployment to ensure that it has access to the
 updated secrets.
 
+### `secrets.add_suffix`
+
+`add_suffix` defines whether to add a random suffix to the secret name to
+ensure uniqueness. This can be useful if you expect the secret to need to be
+recreated to avoid name conflicts. However, this can make it more difficult to
+find the secret by name alone, so use with caution. Defaults to `false` if not
+provided.
+
 ### `secrets.name`
 
-`name` defines the name of the secret. The name must be a lowercase alphanumeric
-string with no spaces or special characters except for dash (`-`). If not
-provided, the name will default to key used in the `secrets` map.
+`name` defines the name of the secret. The name must be an alphanumeric
+string with no spaces or special characters except for dash (`-`), underscore
+(`_`) and forward slash (`/`). If not provided, the name will default to the key
+used in the `secrets` map.
 
 ### `secrets.description`
 
@@ -135,7 +144,7 @@ used to provide context for the secret and is not used by the application.
 ### `secrets.type`
 
 `type` defines the type of secret. Supported values are `string` and `json`. If
-not provided, the default is `json`.
+not provided, the default is `string`.
 
 ### `secrets.keys`
 

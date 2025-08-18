@@ -45,7 +45,7 @@ output "project_short" {
 
 output "secrets" {
   description = "Secrets to create for use by the application."
-  value       = try(local.raw.secrets, {})
+  value       = module.secrets.secrets
 }
 
 output "services" {
