@@ -16,7 +16,7 @@ module "secrets" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=target-group-suffix"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.6.0"
   for_each = var.services
   depends_on = [
     module.secrets
