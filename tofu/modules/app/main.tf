@@ -6,17 +6,18 @@ resource "aws_servicecatalogappregistry_application" "application" {
 }
 
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=secret-name"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.1.0"
 
   project     = var.project
   environment = var.environment
 
-  secrets = local.secrets
-  tags    = local.tags
+  secrets    = local.secrets
+  tags       = local.tags
+  add_suffix = false
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.6.0"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.6.1"
   for_each = var.services
   depends_on = [
     module.secrets
@@ -42,12 +43,12 @@ module "service" {
   force_delete      = !local.production
   oidc_settings     = local.oidc_settings
 
-  vpc_id                   = var.vpc_id
-  private_subnets          = var.private_subnets
-  public_subnets           = var.public_subnets
-  logging_key_id           = var.logging_key_arn
-  container_port           = try(each.value.expose, 3000)
-  create_version_parameter = true
+  vpc_id                       = var.vpc_id
+  private_subnets              = var.private_subnets
+  public_subnets               = var.public_subnets
+  logging_key_id               = var.logging_key_arn
+  container_port               = try(each.value.expose, 3000)
+  create_version_parameter     = true
   use_target_group_port_suffix = true
 
   environment_variables = tomap({

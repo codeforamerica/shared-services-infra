@@ -1,16 +1,18 @@
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=secret-name"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.1.0"
 
   project     = "docs"
   environment = var.environment
 
   secrets = {
-    oidc = {
+    OIDC_SETTINGS = {
+      add_suffix  = false
+      "name"      = "cfa-documentation/${var.environment}/OIDC_SETTINGS"
       description = "OIDC credentials for static documentation hosting"
       type        = "json"
       start_value = jsonencode({
-        client_id     = "",
-        client_secret = "",
+        client_id     = "abc",
+        client_secret = "123",
       })
     }
   }
@@ -66,13 +68,13 @@ module "bucket" {
   }
 
   lifecycle_configuration = [{
-      id      = "static-site"
-      status  = "Enabled"
-      prefix  = ""
-      abort_incomplete_multipart_upload_days = 7
-      noncurrent_version_expiration = {
-        noncurrent_days = 30
-      }
+    id                                     = "static-site"
+    status                                 = "Enabled"
+    prefix                                 = ""
+    abort_incomplete_multipart_upload_days = 7
+    noncurrent_version_expiration = {
+      noncurrent_days = 30
+    }
   }]
 
   tags = merge(local.tags, { use = "static-site" })

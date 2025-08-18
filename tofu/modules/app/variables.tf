@@ -70,6 +70,8 @@ variable "public_subnets" {
 variable "secrets" {
   description = "Secrets to create for use by the application."
   type = map(object({
+    name        = string
+    add_suffix  = bool
     description = string
     type        = string
     keys        = optional(list(string), [])

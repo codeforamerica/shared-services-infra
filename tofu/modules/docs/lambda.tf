@@ -10,7 +10,7 @@ resource "local_file" "pkg_json" {
 resource "local_file" "lambda_js" {
   content = templatefile("${local.lambda_dir}/oidc/index.js.tftpl", {
     protected_prefixes = local.protected_prefixes,
-    secret_arn         = module.secrets.secrets["oidc"].secret_arn
+    secret_arn         = module.secrets.secrets["OIDC_SETTINGS"].secret_arn
   })
   filename = "${local.build_dir}/oidc/index.js"
 }
@@ -21,7 +21,7 @@ resource "null_resource" "npm_install" {
 
   triggers = {
     package_json_hash = sha256(local_file.pkg_json.content)
-    modules_exist = fileexists("${local.build_dir}/oidc/node_modules/.package-lock.json")
+    modules_exist     = fileexists("${local.build_dir}/oidc/node_modules/.package-lock.json")
   }
 
   provisioner "local-exec" {

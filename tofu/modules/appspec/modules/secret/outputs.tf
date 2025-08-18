@@ -1,6 +1,6 @@
 output "add_suffix" {
   description = "Whether to add a random suffix to the secret name."
-  value       = try(var.config.add_suffix, true)
+  value       = try(var.config.add_suffix, false)
 }
 
 output "description" {
