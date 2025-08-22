@@ -33,6 +33,8 @@ jobs:
     name: Plan on ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    env:
+      DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
     outputs:
       plan: ${{ steps.plan.outputs.stdout }}
     steps:
@@ -54,8 +56,6 @@ jobs:
       - name: Plan changes
         id: plan
         working-directory: ./tofu/config/${{ inputs.environment }}/infra
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         run: tofu plan -no-color -concise
       - name: Display plan
         uses: imesense/gha-echo-action@v0.2
