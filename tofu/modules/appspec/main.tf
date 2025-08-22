@@ -10,6 +10,12 @@ module "docs" {
   config = try(local.raw.docs, {})
 }
 
+module "doppler" {
+  source = "./modules/doppler"
+
+  config = try(local.raw.doppler, {})
+}
+
 module "secrets" {
   source = "./modules/secrets"
 

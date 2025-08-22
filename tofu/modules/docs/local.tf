@@ -12,7 +12,8 @@ locals {
   log_groups = [
     aws_lambda_function.oidc.logging_config[0].log_group
   ]
-  prefix             = "cfa-documentation-${var.environment}"
+  project            = "cfa-documentation"
+  prefix             = join("-", [local.project, var.environment])
   protected_prefixes = [for k, v in local.apps : k if v.docs.private]
   tags_base = {
     application = local.prefix

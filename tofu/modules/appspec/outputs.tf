@@ -13,6 +13,11 @@ output "domain" {
   value       = try(local.raw.domain, null)
 }
 
+output "doppler" {
+  description = "Doppler configuration for the application."
+  value       = module.doppler
+}
+
 output "enabled" {
   description = "Whether the application is enabled."
   value       = try(local.raw.enabled, true)

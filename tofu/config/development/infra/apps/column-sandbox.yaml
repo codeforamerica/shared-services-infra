@@ -6,6 +6,8 @@ repo: codeforamerica/column-sandbox
 internal: true
 subdomain: tax
 enabled: false
+doppler:
+  project: column-sandbox
 secrets:
   CLIENT_ID:
     description: Client ID and for Column Sandbox

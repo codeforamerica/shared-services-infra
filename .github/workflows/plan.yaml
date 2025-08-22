@@ -17,6 +17,8 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      DOPPLER_TOKEN:
+        required: true
   workflow_dispatch:
     inputs:
       environment:
@@ -33,6 +35,8 @@ jobs:
     name: Plan on ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    env:
+      DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
     outputs:
       plan: ${{ steps.plan.outputs.stdout }}
     steps:

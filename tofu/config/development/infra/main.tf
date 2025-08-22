@@ -69,6 +69,7 @@ module "app" {
   database_version = try(each.value.database.version, null)
   secrets          = try(each.value.secrets, {})
   internal         = try(each.value.internal, true)
+  doppler_project  = each.value.doppler.project
   domain = (each.value.domain != null
     ? each.value.domain
     : try(each.value.internal, true) ? module.hosted_zones.route53_zone_name.internal : module.hosted_zones.route53_zone_name.external

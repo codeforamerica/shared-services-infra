@@ -32,6 +32,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
     steps:
       - name: distinct ID ${{ inputs.distinct_id || github.run_id }}
         uses: imesense/gha-echo-action@v0.2
