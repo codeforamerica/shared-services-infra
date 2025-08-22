@@ -54,6 +54,8 @@ jobs:
       - name: Plan changes
         id: plan
         working-directory: ./tofu/config/${{ inputs.environment }}/infra
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         run: tofu plan -no-color -concise
       - name: Display plan
         uses: imesense/gha-echo-action@v0.2
