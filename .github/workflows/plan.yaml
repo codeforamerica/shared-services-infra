@@ -17,6 +17,8 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      DOPPLER_TOKEN:
+        required: true
   workflow_dispatch:
     inputs:
       environment:
