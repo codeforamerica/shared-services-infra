@@ -1,13 +1,12 @@
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.1.0"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=2.0.0"
 
-  project     = "docs"
+  project     = local.project
   environment = var.environment
+  add_suffix  = false
 
   secrets = {
     OIDC_SETTINGS = {
-      add_suffix  = false
-      "name"      = "cfa-documentation/${var.environment}/OIDC_SETTINGS"
       description = "OIDC credentials for static documentation hosting"
       type        = "json"
       start_value = jsonencode({
@@ -19,6 +18,18 @@ module "secrets" {
 
   tags = local.tags
 }
+
+module "doppler" {
+  source     = "github.com/codeforamerica/tofu-modules-aws-doppler?ref=1.0.0"
+  depends_on = [module.secrets]
+
+  project              = local.project
+  environment          = var.environment
+  kms_key_arns         = [module.secrets.kms_key_arn]
+  doppler_workspace_id = "08430c37e2a2889dc220"
+  tags                 = local.tags
+}
+
 
 resource "aws_servicecatalogappregistry_application" "docs" {
   name        = local.prefix

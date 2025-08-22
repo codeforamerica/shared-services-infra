@@ -20,6 +20,12 @@ variable "domain" {
   type        = string
 }
 
+variable "doppler_project" {
+  description = "Doppler project to use for the application. If left empty, will be derived from program and project."
+  type        = string
+  default     = null
+}
+
 variable "environment" {
   description = "The environment for the application."
   type        = string

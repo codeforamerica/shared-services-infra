@@ -6,7 +6,7 @@ resource "aws_servicecatalogappregistry_application" "application" {
 }
 
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.1.0"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=2.0.0"
 
   project     = var.project
   environment = var.environment
@@ -16,12 +16,26 @@ module "secrets" {
   add_suffix = false
 }
 
+module "doppler" {
+  source     = "github.com/codeforamerica/tofu-modules-aws-doppler?ref=1.0.0"
+  depends_on = [module.secrets]
+  for_each   = length(local.secrets) > 0 ? toset(["this"]) : toset([])
+
+  doppler_project      = var.doppler_project
+  project              = var.project
+  environment          = var.environment
+  program              = var.program
+  kms_key_arns         = [module.secrets.kms_key_arn]
+  doppler_workspace_id = "08430c37e2a2889dc220"
+  tags                 = local.tags
+}
+
 module "service" {
   source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.6.1"
   for_each = var.services
-  depends_on = [
-    module.secrets
-  ]
+
+  # Wait for the secrets to be created and synced before creating the service.
+  depends_on = [module.secrets, module.doppler]
 
   project            = var.project
   project_short      = local.project_short

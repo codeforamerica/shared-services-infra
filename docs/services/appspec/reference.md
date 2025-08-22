@@ -105,6 +105,17 @@ otherwise defaults to `false`.
 `private` defines whether the documentation is private to the organization,
 requiring authentication to access. Defaults to `false` if not provided.
 
+## `doppler`
+
+`doppler` defines the Doppler configuration for the application. This is
+typically only necessary if the configuration differs from the default values
+derived from the `program`, `name`, and `environment` attributes.
+
+### `doppler.project`
+
+`project` defines the Doppler project name. If not provided, the project will
+be derived from the `program` and `name` attributes.
+
 ## `secrets`
 
 `secrets` defines any secrets that the application requires. This is a map of
