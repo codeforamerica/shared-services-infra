@@ -1,5 +1,6 @@
 title: CfA UI Components
-name: ui-components
+name: cfa-ui-components
+  name_short: ui-cmp
 program: tax-benefits
 repo: codeforamerica/cfa-ui-components
 internal: true
