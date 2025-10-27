@@ -5,6 +5,7 @@ program: tax-benefits
 repo: codeforamerica/cfa-ui-components
 internal: true
 subdomain: tax
+secrets:
 services:
   web:
     health_check_path: /up
