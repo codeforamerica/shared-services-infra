@@ -6,6 +6,9 @@ repo: codeforamerica/cfa-ui-components
 internal: true
 subdomain: tax
 secrets:
+  UNUSED:
+    description: Unused secret, trying to get tofu plan to work
+    type: string
 services:
   web:
     health_check_path: /up
