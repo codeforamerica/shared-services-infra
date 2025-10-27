@@ -1,0 +1,13 @@
+title: CfA UI Components
+name: cfa-ui-components
+program: tax-benefits
+repo: codeforamerica/cfa-ui-components
+internal: true
+subdomain: tax
+services:
+  web:
+    health_check_path: /up
+    expose: 8080
+    public: true
+    ports:
+      - 8080
