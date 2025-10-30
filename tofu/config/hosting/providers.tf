@@ -3,8 +3,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      project     = "shared-services"
-      environment = "development"
+      environment = var.environment
     }
   }
 }

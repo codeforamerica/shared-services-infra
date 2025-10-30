@@ -1,0 +1,32 @@
+name: Setup OpenTofu
+description: Sets up OpenTofu and related environment variables
+inputs:
+  config:
+    description: OpenTofu configuration to initialize.
+    required: true
+    default: service
+  cache-key:
+    description: Cache key for OpenTofu initialization.
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: Cache OpenTofu
+      uses: actions/cache@v4
+      with:
+        path: ./tofu/config/${{ inputs.config }}/.terraform
+        key: ${{ runner.os }}-tofu-${{ inputs.config }}-${{ inputs.cache-key }}-${{ hashFiles('./tofu/config/${{ inputs.config }}/.terraform.lock.hcl') }}
+        restore-keys: |
+          ${{ runner.os }}-tofu-${{ inputs.config }}-${{ inputs.cache-key }}-
+    - name: Setup OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        tofu_wrapper: false
+    - name: Display OpenTofu version
+      shell: bash
+      run: tofu version
+    - name: Initialize OpenTofu
+      shell: bash
+      working-directory: ./tofu/config/${{ inputs.config }}
+      run: tofu init
