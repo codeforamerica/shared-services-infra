@@ -3,11 +3,14 @@ name: cfa-ui-components
 name_short: ui-comps
 program: tax-benefits
 repo: codeforamerica/cfa-ui-components
-internal: false
+internal: true
 subdomain: tax
+doppler:
+  project: cfa-ui-components
 services:
   web:
     health_check_path: /up
+    subdomain: components
     expose: 8080
     public: true
     ports:
