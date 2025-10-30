@@ -17,7 +17,7 @@ module "secrets" {
 }
 
 module "doppler" {
-  source     = "github.com/codeforamerica/tofu-modules-aws-doppler?ref=1.0.0"
+  source     = "github.com/codeforamerica/tofu-modules-aws-doppler?ref=aws-version"
   depends_on = [module.secrets]
   for_each   = length(local.secrets) > 0 ? toset(["this"]) : toset([])
 
@@ -31,7 +31,7 @@ module "doppler" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.6.1"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=otel-config-param"
   for_each = var.services
 
   # Wait for the secrets to be created and synced before creating the service.

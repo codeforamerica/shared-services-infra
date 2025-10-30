@@ -8,14 +8,14 @@ terraform {
 }
 
 module "appspec" {
-  source   = "../../../modules/appspec"
+  source   = "../../modules/appspec"
   for_each = local.specs
 
   spec_path = "${abspath(path.module)}/apps/${each.value}.yaml"
 }
 
 module "docs" {
-  source = "../../../modules/docs"
+  source = "../../modules/docs"
 
   environment  = "development"
   bucket_name  = "docs.dev.services.cfa.codes"
@@ -33,7 +33,7 @@ module "docs" {
 # Create a redirect from the old documentation domain to the new one.
 module "redirect" {
   # TODO: Publish this as a module.
-  source = "../../../modules/cloudfront-redirect"
+  source = "../../modules/cloudfront-redirect"
 
   source_domain = "dev.docs.cfa.codes"
   destination   = "https://docs.dev.services.cfa.codes"

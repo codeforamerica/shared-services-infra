@@ -26,10 +26,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     env:
+      # Set required secrets and variables.
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
       DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+
+      TF_VAR_application: ${{ inputs.application }}
+      TF_VAR_environment: ${{ vars.TF_VAR_ENVIRONMENT }}
+      TF_VAR_program: ${{ vars.TF_VAR_PROGRAM }}
+      TF_VAR_project: ${{ vars.TF_VAR_PROJECT }}
     steps:
       - name: distinct ID ${{ inputs.distinct_id || github.run_id }}
         uses: imesense/gha-echo-action@v0.2
@@ -37,6 +43,11 @@ jobs:
           input-string: ${{ inputs.distinct_id || github.run_id }}
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Verify the application exists
+        uses: andstor/file-existence-action@v3
+        with:
+          fail: true
+          files: "tofu/config/hosting/specs/${{ inputs.application }}.yaml"
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -44,15 +55,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v1
-      - name: Display OpenTofu version
-        run: tofu version
-      - name: Initialize OpenTofu
-        working-directory: ./tofu/config/${{ inputs.environment }}/infra
-        run: tofu init
-      - name: Verify the application exists
-        working-directory: ./tofu/config/${{ inputs.environment }}/infra
-        run: tofu state list module.app\[\"${{ inputs.application }}\"]
+        uses: ./.github/actions/setup-opentofu
+        with:
+          cache-key: ${{ inputs.application }}
+          config: hosting
       - name: Apply changes
-        working-directory: ./tofu/config/${{ inputs.environment }}/infra
-        run: tofu apply --target module.app\[\"${{ inputs.application }}\"] --auto-approve
+        working-directory: ./tofu/config/hosting
+        run: tofu apply --auto-approve
