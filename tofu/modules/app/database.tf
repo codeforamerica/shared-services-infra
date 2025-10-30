@@ -22,6 +22,8 @@ resource "aws_vpc_security_group_ingress_rule" "database" {
   from_port                    = module.database["this"].port
   to_port                      = module.database["this"].port
   referenced_security_group_id = each.value.security_group_id
+
+  tags = local.tags
 }
 
 locals {

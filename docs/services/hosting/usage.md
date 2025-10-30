@@ -10,9 +10,9 @@ that describes the application, its containers, volumes, and other settings.
 
 ## Adding your application
 
-1. Clone the [`codeforamerica/shared-hosting-infra`][repo] repository
+1. Clone the [`codeforamerica/shared-services-infra`][repo] repository
 1. Create a new branch for your changes
-1. Add your app sec file in the `tofu/config/development/infra/apps`
+1. Add your app sec file in the `tofu/config/hosting/specs`
    directory, naming it according to the application (e.g. `my-app.yaml`)
 1. Open a pull request to the `main` branch of the repository
 1. Ensure that status checks pass for the pull request
@@ -60,4 +60,4 @@ such, it's susceptible to changes and may not be stable.
 
 [appspec]: ../appspec/index.md
 [deployment]: deployment-workflow.md
-[repo]: https://github.com/codeforamerica/shared-hosting-infra
+[repo]: https://github.com/codeforamerica/shared-services-infra
