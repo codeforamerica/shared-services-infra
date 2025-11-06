@@ -7,6 +7,10 @@ internal: true
 subdomain: tax
 doppler:
   project: cfa-ui-components
+secrets:
+  SECRET_KEY_BASE:
+    description: Secret key base for Rails key generation
+    type: string
 services:
   web:
     health_check_path: /up
@@ -15,3 +19,6 @@ services:
     public: true
     ports:
       - 8080
+    secrets:
+      SECRET_KEY_BASE:
+        name: SECRET_KEY_BASE
