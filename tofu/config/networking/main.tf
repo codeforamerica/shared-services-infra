@@ -8,7 +8,7 @@ terraform {
 }
 
 module "inputs" {
-  source = "../../modules/inputs"
+  source = "github.com/codeforamerica/tofu-modules-aws-ssm-inputs?ref=1.0.0"
 
   prefix = "/${var.project}/${var.environment}"
   inputs = ["application/tag", "logging/key"]
@@ -30,7 +30,7 @@ module "vpc" {
 }
 
 module "outputs" {
-  source = "../../modules/outputs"
+  source = "github.com/codeforamerica/tofu-modules-aws-ssm-outputs?ref=1.0.0"
 
   prefix = "/${var.project}/${var.environment}"
 
@@ -42,16 +42,3 @@ module "outputs" {
 
   tags = { awsApplication : module.inputs.values["application/tag"] }
 }
-
-# module "bastion" {
-#   source = "github.com/codeforamerica/tofu-modules-aws-ssm-bastion?ref=1.1.0"
-#
-#   project            = "shared-services"
-#   environment        = "development"
-#   key_pair_name      = "shared-services-development-bastion"
-#   private_subnet_ids = module.vpc.private_subnets
-#   vpc_id             = module.vpc.vpc_id
-#   instance_profile   = null
-#
-#   tags = { awsApplication : module.inputs.values["application/tag"] }
-# }

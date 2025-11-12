@@ -3,10 +3,10 @@ provider "aws" {
 
   default_tags {
     tags = {
-      application = "cfa-documentation-development"
-      environment = "development"
-      program     = "engineering"
-      project     = "cfa-documentation"
+      application = "${var.project}-${var.environment}"
+      environment = var.environment
+      program     = var.program
+      project     = var.project
     }
   }
 }

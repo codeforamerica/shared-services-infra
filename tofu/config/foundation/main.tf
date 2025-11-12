@@ -52,7 +52,7 @@ module "logging" {
 }
 
 module "outputs" {
-  source = "../../modules/outputs"
+  source = "github.com/codeforamerica/tofu-modules-aws-ssm-outputs?ref=1.0.0"
 
   prefix = "/${var.project}/${var.environment}"
 
