@@ -1,0 +1,14 @@
+title: Rap Sheet Reader
+name: cmr-rap-sheet-reader
+program: clear-my-record
+repo: codeforamerica/cmr-rap-sheet-reader
+internal: false
+services:
+  web:
+    dockerfile: ./Dockerfile
+    context: .
+    expose: 3000
+    public: true
+    health_check_path: /
+    ports:
+      - 3000
