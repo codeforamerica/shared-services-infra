@@ -1,5 +1,6 @@
 title: Rap Sheet Reader
 name: cmr-rap-sheet-reader
+name_short: cmr-raps
 program: clear-my-record
 repo: codeforamerica/cmr-rap-sheet-reader
 internal: false
