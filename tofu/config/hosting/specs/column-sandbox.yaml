@@ -5,7 +5,7 @@ program: tax-benefits
 repo: codeforamerica/column-sandbox
 internal: true
 subdomain: tax
-enabled: false
+enabled: true
 doppler:
   project: column-sandbox
 secrets:
