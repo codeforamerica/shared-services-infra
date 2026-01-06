@@ -31,7 +31,7 @@ module "doppler" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=otel-config-param"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.8.0"
   for_each = var.services
 
   # Wait for the secrets to be created and synced before creating the service.
@@ -63,6 +63,7 @@ module "service" {
   logging_key_id               = var.logging_key_arn
   container_port               = try(each.value.expose, 3000)
   create_version_parameter     = true
+  manage_performance_log_group = true
   use_target_group_port_suffix = true
 
   environment_variables = tomap({
