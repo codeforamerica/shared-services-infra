@@ -22,8 +22,11 @@ that describes the application, its containers, volumes, and other settings.
 The DevOps team will review the pull request and, once approved, will create
 resources in your repository that will allow you to deploy your application.
 
-- A repository secret named `DEPLOYMENT_PAT` that will be used to start the
-  shared services deployment workflow
+> [!NOTE]
+> The GitHub environment and secrets mentioned below are managed by Doppler.
+
+- Environment secrets named `DEPLOYMENT_APP_ID` and `DEPLOYMENT_APP_KEY` will
+  be used to start the shared services deployment workflow
 - A `development` environment, if one does not already exist, that will be used
   to build and push updated docker images for the application
 - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment secrets that are

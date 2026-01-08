@@ -30,29 +30,54 @@ Follow the steps below to add the workflow to your repository:
 1. Add your additional build steps, as needed, before the
    `Build and push Docker image` step
 
-## Environment
+## Secrets and variables
 
 > [!TIP]
-> The DevOps team will create the initial environment for you and set the
-> appropriate secrets and variables. You can then modify the environment as
-> needed.
+> The DevOps team will set the appropriate secrets and variables documented
+> below. You can add additional secrets and variables that shoudl be synced to
+> GitHub.
 
-For this workflow to function correctly, you will need to set up one or more
-environments for it be run against. The environment should include the following
-secrets and variables:
+We use [Doppler] to manage secrets across projects and environments. If you
+don't already have a Doppler project and environment, one will be created for
+you. Secrets from the `ci` environment will be synced to GitHub Environments
+for use in GitHub Actions.
 
-### Secrets
+In addition to the secrets added directly to the `ci` environment, an
+[inherited config][config-inheritance] will be added, which will add the values
+needed to deploy the application.
 
-| Name                    | Description                                                           |
-|-------------------------|-----------------------------------------------------------------------|
-| `AWS_ACCESS_KEY_ID`     | AWS access key ID with access to the shared services environment.     |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret access key with access to the shared services environment. |
+### Direct secrets
 
-### Variables
+The following secrets are used push container images, and update the version
+SSM parameter. They are unique to your project and environment and provide
+minmal access.
 
-| Name         | Description                                                      |
-|--------------|------------------------------------------------------------------|
-| `AWS_REGION` | The AWS region where the shared services environment is located. |
+| Name                      | Description                                                           |
+|---------------------------|-----------------------------------------------------------------------|
+| `AWS_ACCESS_KEY_ID`       | AWS access key ID with access to the shared services environment.     |
+| `AWS_SECRET_ACCESS_KEY`   | AWS secret access key with access to the shared services environment. |
+
+
+### Inherited secrets
+
+These secrets are inherited from the shared services project and managed by the
+DevOps team. They allow your repository to trigger the application deployment
+workflow on the sahred services repository.
+
+| Name                  | Description                                          |
+|-----------------------|------------------------------------------------------|
+| `DEPLOYMENT_APP_ID`   | ID of the GitHub App used for authorization.         |
+| `DEPLOYMENT_APP_KEY`  | Private key to authenticate with the GitHub App.     |
+
+### Inherited variables
+
+Like the secrets above, these variables are inherited from teh shared services
+project. They represent insecure values necessary to identify the target of
+deployments.
+
+| Name          | Description                                                      |
+|---------------|------------------------------------------------------------------|
+| `AWS_REGION`  | The AWS region where the shared services environment is located. |
 
 ## How it works
 
@@ -106,6 +131,8 @@ sequenceDiagram
 --8<-- "docs/assets/app-deployment-workflow.yaml"
 ```
 
+[config-inheritance]: https://docs.doppler.com/docs/config-inheritance
+[doppler]: https://www.doppler.com/
 [review]: usage.md#review-and-setup
 
 [^1]: By default, the new version is based on the latest SHA. You may want to
