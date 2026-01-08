@@ -29,7 +29,7 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -64,11 +64,19 @@ jobs:
             --name  /$APPLICATION/$ENVIRONMENT/web/version \
             --value "$IMAGE_TAG" \
             --overwrite
+      - name: Get a deployment token
+        uses: actions/create-github-app-token@v2
+        id: token
+        with:
+          app-id: ${{ secrets.DEPLOYMENT_APP_ID }}
+          private-key: ${{ secrets.DEPLOYMENT_APP_KEY }}
+          owner: codeforamerica
+          repositories: shared-services-infra
       - name: Trigger deployment from shared services
-        uses: codex-/return-dispatch@v2
+        uses: codex-/return-dispatch@v3
         id: dispatch
         with:
-          token: ${{ secrets.DEPLOYMENT_PAT }}
+          token: ${{ steps.token.outputs.token }}
           ref: ${{ inputs.shared_services_ref || 'main' }}
           repo: shared-services-infra
           owner: codeforamerica
@@ -86,7 +94,7 @@ jobs:
           workflow: ${{ steps.dispatch.outputs.run_id }}
       - name: Fail unless the workflow succeeded
         if: ${{ steps.waiter.outputs.conclusion != 'success' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             core.setFailed('Deployment workflow completed with stats: ${{ steps.waiter.outputs.conclusion }}')
