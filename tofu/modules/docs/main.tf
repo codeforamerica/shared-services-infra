@@ -48,7 +48,7 @@ resource "aws_kms_key" "docs" {
     cloudfront_distribution_arn : aws_cloudfront_distribution.endpoint.arn,
   })))
 
-  tags = resource.aws_servicecatalogappregistry_application.docs.application_tag
+  tags = local.tags
 }
 
 resource "aws_kms_alias" "docs" {

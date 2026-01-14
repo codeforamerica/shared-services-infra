@@ -9,6 +9,8 @@ resource "aws_iam_policy" "prefix" {
     bucket_arn : module.bucket.arn,
     prefix : each.key
   })))
+
+  tags = local.tags
 }
 
 data "aws_iam_policy_document" "lambda_assume_role" {
@@ -27,6 +29,8 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 resource "aws_iam_role" "oidc_function" {
   name               = "${local.prefix}-oidc-function"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+
+  tags = local.tags
 }
 
 resource "aws_iam_policy" "oidc_function" {
@@ -41,6 +45,8 @@ resource "aws_iam_policy" "oidc_function" {
     function_name : "${local.prefix}-oidc",
     secret_arn : module.secrets.secrets["OIDC_SETTINGS"].secret_arn,
   })))
+
+  tags = local.tags
 }
 
 resource "aws_iam_role_policy_attachment" "oidc_function" {
