@@ -18,7 +18,7 @@ locals {
   tags_base = {
     application = local.prefix
     program     = "engineering"
-    project     = "cfa-documenation"
+    project     = "cfa-documentation"
     environment = var.environment
   }
   template_dir = "${path.module}/templates"

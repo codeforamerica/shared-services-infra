@@ -48,7 +48,7 @@ resource "aws_kms_key" "docs" {
     cloudfront_distribution_arn : aws_cloudfront_distribution.endpoint.arn,
   })))
 
-  tags = resource.aws_servicecatalogappregistry_application.docs.application_tag
+  tags = local.tags
 }
 
 resource "aws_kms_alias" "docs" {
@@ -96,6 +96,8 @@ resource "aws_s3_object" "robots" {
   key           = "robots.txt"
   source        = "${local.file_dir}/robots.txt"
   force_destroy = var.force_delete
+
+  tags = local.tags
 }
 
 resource "aws_s3_object" "index" {
@@ -104,6 +106,8 @@ resource "aws_s3_object" "index" {
   content_base64 = base64encode(templatefile("${local.template_dir}/index.html.tftpl", { apps = local.apps }))
   content_type   = "text/html"
   force_destroy  = var.force_delete
+
+  tags = local.tags
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "datadog" {
