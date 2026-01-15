@@ -12,6 +12,7 @@ resource "local_file" "lambda_js" {
     protected_prefixes = local.protected_prefixes,
     secret_arn         = module.secrets.secrets["OIDC_SETTINGS"].secret_arn
   })
+
   filename = "${local.build_dir}/oidc/index.js"
 }
 
@@ -21,6 +22,7 @@ resource "null_resource" "npm_install" {
 
   triggers = {
     package_json_hash = sha256(local_file.pkg_json.content)
+    lambda_hash       = local_file.lambda_js.content_sha256
     modules_exist     = fileexists("${local.build_dir}/oidc/node_modules/.package-lock.json")
   }
 

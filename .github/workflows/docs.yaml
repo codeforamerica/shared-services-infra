@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   deploy:
@@ -27,18 +28,18 @@ jobs:
     environment: ${{ inputs.environment || 'development'}}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION || 'us-east-1' }}
-      - uses: actions/setup-python@v5
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          role-session-name: github-${{ github.event.repository.name }}-${{ github.run_id }}
+          role-to-assume: ${{ secrets.AWS_DOCS_ROLE_ARN }}
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache
@@ -53,4 +54,4 @@ jobs:
             mkdocs-nav-weight \
             pymdown-extensions
       - run: mkdocs build
-      - run: aws s3 sync ./site "s3://${{ env.DOCS_BUCKET || 'docs.dev.services.cfa.codes' }}/${{ env.PREFIX || 'shared-services' }}"
+      - run: aws s3 sync ./site "s3://${{ vars.DOCS_BUCKET || 'docs.dev.services.cfa.codes' }}/${{ vars.DOCS_PREFIX || 'shared-services' }}"

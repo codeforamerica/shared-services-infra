@@ -1,3 +1,10 @@
+resource "aws_iam_openid_connect_provider" "github" {
+  url            = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
+
+  tags = local.tags
+}
+
 resource "aws_iam_policy" "prefix" {
   for_each = local.apps
 
@@ -11,6 +18,26 @@ resource "aws_iam_policy" "prefix" {
   })))
 
   tags = local.tags
+}
+
+resource "aws_iam_role" "deploy" {
+  for_each = local.apps
+
+  name = "${local.prefix}-${each.key}-deploy"
+
+  assume_role_policy = jsonencode(yamldecode(templatefile("${local.template_dir}/deploy-assume-policy.yaml.tftpl", {
+    oidc_arn : aws_iam_openid_connect_provider.github.arn,
+    repository : each.value.repo
+  })))
+
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "deploy" {
+  for_each = local.apps
+
+  role       = aws_iam_role.deploy[each.key].name
+  policy_arn = aws_iam_policy.prefix[each.key].arn
 }
 
 data "aws_iam_policy_document" "lambda_assume_role" {

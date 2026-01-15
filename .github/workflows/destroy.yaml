@@ -1,0 +1,67 @@
+name: "[DANGER] Destroy infrastructure"
+
+on:
+  workflow_dispatch:
+    inputs:
+      config:
+        description: OpenTofu configuration to destroy.
+        required: true
+        type: choice
+        options:
+          - foundation
+          - networking
+          - docs
+      environment:
+        description: Environment to destroy.
+        required: true
+        type: environment
+      confirmation:
+        description: |
+          Are you sure you wish to destroy all resources for this configuration
+          in this environment?
+
+          Deletion protection must be disabled and applied before you can
+          proceed. This process is irreversible.
+        default: false
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  destroy:
+    name: Destroy ${{ inputs.config }} for ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    if: ${{ inputs.confirmation }}
+    environment: ${{ inputs.environment }}
+    env:
+      # Set required secrets and variables.
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+      TF_VAR_public_subnet_cidrs: ${{ secrets.TF_VAR_PUBLIC_SUBNET_CIDRS }}
+      TF_VAR_private_subnet_cidrs: ${{ secrets.TF_VAR_PRIVATE_SUBNET_CIDRS }}
+
+      TF_VAR_vpc_cidr: ${{ secrets.TF_VAR_VPC_CIDR }}
+      TF_VAR_environment: ${{ vars.TF_VAR_ENVIRONMENT }}
+      TF_VAR_program: ${{ vars.TF_VAR_PROGRAM }}
+      TF_VAR_project: ${{ vars.TF_VAR_PROJECT }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: ${{ secrets.AWS_REGION || 'us-west-1' }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+      - name: Setup OpenTofu
+        uses: ./.github/actions/setup-opentofu
+        with:
+          config: ${{ inputs.config }}
+      - name: Destroy infrastructure
+        working-directory: ./tofu/config/${{ inputs.config }}
+        run: tofu destroy -concise -auto-approve
