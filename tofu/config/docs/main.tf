@@ -49,6 +49,4 @@ module "redirect" {
   # The hosted zone for this domain is in another account, so we'll crete the
   # records manually.
   create_records = false
-
-  tags = aws_servicecatalogappregistry_application.application.tags
 }
