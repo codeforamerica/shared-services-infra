@@ -1,3 +1,10 @@
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
+  
+  tags = local.tags
+}
+
 resource "aws_iam_policy" "prefix" {
   for_each = local.apps
 
@@ -8,6 +15,19 @@ resource "aws_iam_policy" "prefix" {
   policy = jsonencode(yamldecode(templatefile("${local.template_dir}/prefix-policy.yaml.tftpl", {
     bucket_arn : module.bucket.arn,
     prefix : each.key
+  })))
+
+  tags = local.tags
+}
+
+resource "aws_iam_role" "deploy" {
+  for_each = local.apps
+
+  name = "${local.prefix}-${each.key}-deploy-docs"
+
+  assume_role_policy = jsonencode(yamldecode(templatefile("${local.template_dir}/deploy-assume-policy.yaml.tftpl", {
+    oidc_arn : aws_iam_openid_connect_provider.github.arn,
+    repository : each.value.repository
   })))
 
   tags = local.tags
