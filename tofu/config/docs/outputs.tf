@@ -3,6 +3,11 @@ output "certificate_validation_records" {
   value       = module.redirect.certificate_validation_records
 }
 
+output "deploy_roles" {
+  description = "IAM roles for deploying the documentation for each application."
+  value       = module.docs.deploy_roles
+}
+
 output "endpoint_url" {
   description = "The URL of the documentation endpoint."
   value       = module.docs.endpoint_url
