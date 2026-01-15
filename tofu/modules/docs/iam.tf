@@ -33,6 +33,11 @@ resource "aws_iam_role" "deploy" {
   tags = local.tags
 }
 
+resource "aws_iam_role_policy_attachment" "deploy" {
+  role       = aws_iam_role.deploy.name  
+  policy_arn = aws_iam_policy.prefix.arn
+}
+
 data "aws_iam_policy_document" "lambda_assume_role" {
   statement {
     effect = "Allow"
