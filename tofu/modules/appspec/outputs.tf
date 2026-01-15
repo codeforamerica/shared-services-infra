@@ -48,6 +48,11 @@ output "project_short" {
   value       = try(local.raw.name_short, local.raw.name)
 }
 
+output "repo" {
+  description = "The repository for the application."
+  value       = try(local.raw.repo, null)
+}
+
 output "secrets" {
   description = "Secrets to create for use by the application."
   value       = module.secrets.secrets
