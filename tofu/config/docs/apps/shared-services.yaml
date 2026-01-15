@@ -1,6 +1,6 @@
 title: Code for America Shared Services
 name: shared-services
 program: engineering
-repo: codeforamerica/shared-services
+repo: codeforamerica/shared-services-infra
 docs:
   enabled: true
