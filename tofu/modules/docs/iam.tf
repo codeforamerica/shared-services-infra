@@ -27,7 +27,7 @@ resource "aws_iam_role" "deploy" {
 
   assume_role_policy = jsonencode(yamldecode(templatefile("${local.template_dir}/deploy-assume-policy.yaml.tftpl", {
     oidc_arn : aws_iam_openid_connect_provider.github.arn,
-    repository : each.value.repository
+    repository : each.value.repo
   })))
 
   tags = local.tags
