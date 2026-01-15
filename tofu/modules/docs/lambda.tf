@@ -12,7 +12,7 @@ resource "local_file" "lambda_js" {
     protected_prefixes = local.protected_prefixes,
     secret_arn         = module.secrets.secrets["OIDC_SETTINGS"].secret_arn
   })
-  
+
   filename = "${local.build_dir}/oidc/index.js"
 }
 

@@ -34,8 +34,10 @@ resource "aws_iam_role" "deploy" {
 }
 
 resource "aws_iam_role_policy_attachment" "deploy" {
-  role       = aws_iam_role.deploy.name  
-  policy_arn = aws_iam_policy.prefix.arn
+  for_each = local.apps
+
+  role       = aws_iam_role.deploy[each.key].name
+  policy_arn = aws_iam_policy.prefix[each.key].arn
 }
 
 data "aws_iam_policy_document" "lambda_assume_role" {
