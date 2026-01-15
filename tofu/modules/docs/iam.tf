@@ -23,7 +23,7 @@ resource "aws_iam_policy" "prefix" {
 resource "aws_iam_role" "deploy" {
   for_each = local.apps
 
-  name = "${local.prefix}-${each.key}-deploy-docs"
+  name = "${local.prefix}-${each.key}-deploy"
 
   assume_role_policy = jsonencode(yamldecode(templatefile("${local.template_dir}/deploy-assume-policy.yaml.tftpl", {
     oidc_arn : aws_iam_openid_connect_provider.github.arn,
