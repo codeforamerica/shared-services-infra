@@ -1,0 +1,6 @@
+title: SQS Entity Resolution Using Senzing
+name: sqs-entity-resolution
+program: safety-net
+repo: codeforamerica/sqs-entity-resolution
+docs:
+  enabled: true
