@@ -61,4 +61,4 @@ jobs:
           config: hosting
       - name: Apply changes
         working-directory: ./tofu/config/hosting
-        run: tofu apply --auto-approve
+        run: tofu apply -concise --auto-approve

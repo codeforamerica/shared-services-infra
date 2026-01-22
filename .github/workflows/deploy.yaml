@@ -53,4 +53,4 @@ jobs:
           config: ${{ inputs.config }}
       - name: Apply changes
         working-directory: ./tofu/config/${{ inputs.config }}
-        run: tofu apply --auto-approve
+        run: tofu apply -concise --auto-approve
