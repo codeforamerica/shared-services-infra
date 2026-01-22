@@ -6,11 +6,11 @@ resource "aws_servicecatalogappregistry_application" "application" {
 }
 
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=2.0.0"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=recover-period"
 
   project     = var.project
   environment = var.environment
-
+  recovery_window = local.production ? 30 : 0
   secrets    = local.secrets
   tags       = local.tags
   add_suffix = false
@@ -31,7 +31,7 @@ module "doppler" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.8.0"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=key-policy-principals"
   for_each = var.services
 
   # Wait for the secrets to be created and synced before creating the service.
@@ -94,4 +94,19 @@ resource "aws_cloudwatch_log_subscription_filter" "datadog" {
   log_group_name  = each.value
   filter_pattern  = ""
   destination_arn = data.aws_lambda_function.datadog["this"].arn
+}
+
+module "uploads" {
+  source = "github.com/codeforamerica/tofu-modules-aws-s3-uploads-bucket?ref=bucket"
+
+  name = "uploads"
+  project = var.project
+  environment = var.environment
+  logging_bucket = var.logging_bucket
+  allowed_principals = [
+    for service in module.service : service.task_role_arn
+  ]
+  force_delete      = !local.production
+
+  tags = local.tags
 }

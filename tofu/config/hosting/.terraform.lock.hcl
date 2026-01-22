@@ -25,7 +25,7 @@ provider "registry.opentofu.org/dopplerhq/doppler" {
 
 provider "registry.opentofu.org/hashicorp/aws" {
   version     = "6.28.0"
-  constraints = ">= 3.29.0, >= 3.74.0, >= 5.0.0, >= 5.35.0, >= 5.44.0, >= 5.85.0, >= 5.93.0, >= 5.99.0, ~> 6.0, >= 6.28.0"
+  constraints = ">= 3.29.0, >= 3.74.0, >= 4.15.1, >= 5.0.0, >= 5.35.0, >= 5.44.0, >= 5.85.0, >= 5.93.0, >= 5.99.0, ~> 6.0, >= 6.28.0"
   hashes = [
     "h1:wek8vEEZpTPulbLi9xCf2wnxvc97JXAN4qcOhduSg7k=",
     "zh:38d58305206953783c150fb96d5c4f3ea5fe0b9e0987d927c884a6b0f2adf7a9",
