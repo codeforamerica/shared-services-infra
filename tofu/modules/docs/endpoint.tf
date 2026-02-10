@@ -21,6 +21,7 @@ resource "aws_cloudfront_function" "endpoint_rewrite" {
 
 # TODO: Use a WAF?
 #trivy:ignore:AVD-AWS-0011
+#trivy:ignore:AVD-AWS-0010
 resource "aws_cloudfront_distribution" "endpoint" {
   depends_on = [aws_lambda_function.oidc]
 

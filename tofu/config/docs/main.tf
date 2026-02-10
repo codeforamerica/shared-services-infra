@@ -38,8 +38,7 @@ module "docs" {
 
 # Create a redirect from the old documentation domain to the new one.
 module "redirect" {
-  # TODO: Publish this as a module.
-  source = "../../modules/cloudfront-redirect"
+  source = "github.com/codeforamerica/tofu-modules-aws-cloudfront-redirect?ref=1.0.0"
 
   source_domain = "dev.docs.cfa.codes"
   destination   = "https://docs.dev.services.cfa.codes"
