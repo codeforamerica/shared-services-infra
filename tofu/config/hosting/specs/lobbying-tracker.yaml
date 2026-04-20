@@ -2,7 +2,7 @@ title: Lobbying Expense Tracker
 name: lobbying-tracker
 name_short: lob-track
 program: policy
-repo: codeforamerica/lobbying-tracker
+repo: codeforamerica/sharedservices-lobbying-tracker
 internal: true
 secrets:
   ADMIN_EMAILS:
