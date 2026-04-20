@@ -1,0 +1,24 @@
+title: Lobbying Expense Tracker
+name: lobbying-tracker
+name_short: lob-track
+program: policy
+repo: codeforamerica/lobbying-tracker
+internal: true
+secrets:
+  ADMIN_EMAILS:
+    description: Comma-separated list of Okta email addresses with admin access (Reports + Staff Rates)
+    type: string
+services:
+  web:
+    health_check_path: /health
+    expose: 3000
+    public: true
+    ports:
+      - 3000
+    volumes:
+      data:
+        type: persistent
+        mount: /app/data
+    secrets:
+      ADMIN_EMAILS:
+        name: ADMIN_EMAILS
