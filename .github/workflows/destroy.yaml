@@ -63,5 +63,5 @@ jobs:
         with:
           config: ${{ inputs.config }}
       - name: Destroy infrastructure
-        working-directory: ./tofu/config/${{ inputs.config }}
+        working-directory: ./tofu/configs/${{ inputs.config }}
         run: tofu destroy -concise -auto-approve

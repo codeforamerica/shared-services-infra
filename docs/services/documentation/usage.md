@@ -31,7 +31,7 @@ any services, but it must have a [`docs`][appspec.docs] section defined.
 
 1. Clone the [`codeforamerica/shared-services-infra`][repo] repository
 1. Create a new branch for your changes
-1. Add your app sec file in the `tofu/config/docs/apps`
+1. Add your app sec file in the `tofu/configs/docs/apps`
    directory, naming it according to the application (e.g. `my-app.yaml`)
 1. Open a pull request to the `main` branch of the repository
 1. Ensure that status checks pass for the pull request

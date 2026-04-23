@@ -47,7 +47,7 @@ jobs:
         uses: andstor/file-existence-action@v3
         with:
           fail: true
-          files: "tofu/config/hosting/specs/${{ inputs.application }}.yaml"
+          files: "tofu/configs/hosting/specs/${{ inputs.application }}.yaml"
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -60,5 +60,5 @@ jobs:
           cache-key: ${{ inputs.application }}
           config: hosting
       - name: Apply changes
-        working-directory: ./tofu/config/hosting
+        working-directory: ./tofu/configs/hosting
         run: tofu apply --auto-approve

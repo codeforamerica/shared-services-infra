@@ -6,7 +6,7 @@ resource "aws_servicecatalogappregistry_application" "application" {
 }
 
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=2.0.0"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=2.1.1"
 
   project     = var.project
   environment = var.environment
@@ -31,7 +31,7 @@ module "doppler" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.8.0"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.13.1"
   for_each = var.services
 
   # Wait for the secrets to be created and synced before creating the service.

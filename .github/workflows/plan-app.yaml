@@ -50,7 +50,7 @@ jobs:
         uses: andstor/file-existence-action@v3
         with:
           fail: true
-          files: "tofu/config/hosting/specs/${{ inputs.application }}.yaml"
+          files: "tofu/configs/hosting/specs/${{ inputs.application }}.yaml"
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -63,16 +63,16 @@ jobs:
           cache-key: ${{ inputs.application }}
           config: hosting
       - name: Plan changes
-        working-directory: ./tofu/config/hosting
+        working-directory: ./tofu/configs/hosting
         run: tofu plan -concise -no-color -out tfplan > plan.txt
       - name: Display plan
-        working-directory: ./tofu/config/hosting
+        working-directory: ./tofu/configs/hosting
         run: tofu show -plan tfplan
       - name: Upload plan file
         uses: actions/upload-artifact@v4
         with:
           name: hosting-tfplan
           path: |
-            ./tofu/config/hosting/plan.txt
-            ./tofu/config/hosting/tfplan
+            ./tofu/configs/hosting/plan.txt
+            ./tofu/configs/hosting/tfplan
           retention-days: 5
