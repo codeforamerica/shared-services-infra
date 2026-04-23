@@ -20,7 +20,7 @@ module "secrets" {
 }
 
 module "doppler" {
-  source     = "github.com/codeforamerica/tofu-modules-aws-doppler?ref=aws-version"
+  source     = "github.com/codeforamerica/tofu-modules-aws-doppler?ref=1.1.0"
   depends_on = [module.secrets]
 
   project              = local.project

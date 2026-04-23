@@ -15,8 +15,8 @@ runs:
     - name: Cache OpenTofu
       uses: actions/cache@v4
       with:
-        path: ./tofu/config/${{ inputs.config }}/.terraform
-        key: ${{ runner.os }}-tofu-${{ inputs.config }}-${{ inputs.cache-key }}-${{ hashFiles('./tofu/config/${{ inputs.config }}/.terraform.lock.hcl') }}
+        path: ./tofu/configs/${{ inputs.config }}/.terraform
+        key: ${{ runner.os }}-tofu-${{ inputs.config }}-${{ inputs.cache-key }}-${{ hashFiles('./tofu/configs/${{ inputs.config }}/.terraform.lock.hcl') }}
         restore-keys: |
           ${{ runner.os }}-tofu-${{ inputs.config }}-${{ inputs.cache-key }}-
     - name: Setup OpenTofu
@@ -28,5 +28,5 @@ runs:
       run: tofu version
     - name: Initialize OpenTofu
       shell: bash
-      working-directory: ./tofu/config/${{ inputs.config }}
+      working-directory: ./tofu/configs/${{ inputs.config }}
       run: tofu init

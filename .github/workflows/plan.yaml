@@ -86,16 +86,16 @@ jobs:
         with:
           config: ${{ inputs.config }}
       - name: Plan changes
-        working-directory: ./tofu/config/${{ inputs.config }}
+        working-directory: ./tofu/configs/${{ inputs.config }}
         run: tofu plan -concise -no-color -out tfplan > plan.txt
       - name: Display plan
-        working-directory: ./tofu/config/${{ inputs.config }}
+        working-directory: ./tofu/configs/${{ inputs.config }}
         run: tofu show -plan tfplan
       - name: Upload plan file
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.config }}-tfplan
           path: |
-            ./tofu/config/${{ inputs.config }}/plan.txt
-            ./tofu/config/${{ inputs.config }}/tfplan
+            ./tofu/configs/${{ inputs.config }}/plan.txt
+            ./tofu/configs/${{ inputs.config }}/tfplan
           retention-days: 5
