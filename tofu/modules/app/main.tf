@@ -31,7 +31,7 @@ module "doppler" {
 }
 
 module "service" {
-  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.13.1"
+  source   = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=oidc-scope"
   for_each = var.services
 
   # Wait for the secrets to be created and synced before creating the service.
