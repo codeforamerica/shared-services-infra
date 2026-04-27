@@ -73,6 +73,11 @@ output "title" {
   value       = try(local.raw.title, local.raw.name)
 }
 
+output "type" {
+  description = "The deployment type for the app (container, static)."
+  value       = try(local.raw.type, "container")
+}
+
 output "raw_spec" {
   description = "The full specification for the app."
   value       = local.raw
