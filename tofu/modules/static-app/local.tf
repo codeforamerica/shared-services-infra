@@ -9,9 +9,7 @@ locals {
   file_dir   = "${path.module}/files"
   fqdn       = "${var.subdomain}.${var.domain}"
   lambda_dir = "${path.module}/lambda"
-  log_groups = [
-    aws_lambda_function.oidc.logging_config[0].log_group
-  ]
+  log_groups = toset(["/aws/lambda/${local.prefix}-oidc"])
   project            = "cfa-static-apps"
   prefix             = join("-", [local.project, var.environment])
   protected_prefixes = keys(local.apps)
