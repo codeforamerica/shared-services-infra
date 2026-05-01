@@ -42,12 +42,14 @@ the values it needs to deploy.
 The following will be added to your repository's `development` environment:
 
 - `AWS_STATIC_ROLE_ARN` — secret; the IAM role your deploy workflow assumes
-  to write to S3
-- `STATIC_BUCKET` — variable; the name of the shared S3 bucket
-- `STATIC_PREFIX` — variable; the S3 key prefix reserved for your app (this
-  is what isolates your files from other apps in the same bucket)
-- `CLOUDFRONT_DISTRIBUTION_ID` — variable; the CloudFront distribution ID,
-  used to invalidate the cache on deploy
+  to write to S3. Scoped to your app's bucket only.
+- `STATIC_BUCKET` — variable; the name of your app's dedicated S3 bucket
+  (e.g. `static-apps-development-my-app`)
+- `STATIC_PREFIX` — variable; your app's URL path segment
+  (e.g. `my-app`). Used for CloudFront cache invalidation — not an S3
+  key prefix. Files are synced to the bucket root.
+- `CLOUDFRONT_DISTRIBUTION_ID` — variable; the shared CloudFront
+  distribution ID, used to invalidate the cache for your app's path on deploy
 
 ## Deployment
 
