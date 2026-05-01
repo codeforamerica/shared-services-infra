@@ -13,6 +13,7 @@ locals {
     client_secret_arn      = module.secrets.secrets["OIDC_SETTINGS"].secret_arn
     authorization_endpoint = "https://codeforamerica.okta.com/oauth2/v1/authorize"
     issuer                 = "https://codeforamerica.okta.com"
+    scope                  = "openid email"
     token_endpoint         = "https://codeforamerica.okta.com/oauth2/v1/token"
     user_info_endpoint     = "https://codeforamerica.okta.com/oauth2/v1/userinfo"
   }
