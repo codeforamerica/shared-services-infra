@@ -33,7 +33,7 @@ module "doppler" {
 
 resource "aws_servicecatalogappregistry_application" "static" {
   name        = local.prefix
-  description = "Static app hosting for Code for America."
+  description = "Static app hosting (${var.project}) for Code for America."
 
   tags = local.tags_base
 }
@@ -52,7 +52,7 @@ resource "aws_kms_key" "static" {
 }
 
 resource "aws_kms_alias" "static" {
-  name          = "alias/cfa-static-apps/${var.environment}"
+  name          = "alias/${var.project}/${var.environment}"
   target_key_id = aws_kms_key.static.id
 }
 
