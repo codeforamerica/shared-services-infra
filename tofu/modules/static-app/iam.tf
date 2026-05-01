@@ -1,8 +1,5 @@
-resource "aws_iam_openid_connect_provider" "github" {
-  url            = "https://token.actions.githubusercontent.com"
-  client_id_list = ["sts.amazonaws.com"]
-
-  tags = local.tags
+data "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
 }
 
 resource "aws_iam_policy" "prefix" {
@@ -26,7 +23,7 @@ resource "aws_iam_role" "deploy" {
   name = "${local.prefix}-${each.key}-deploy"
 
   assume_role_policy = jsonencode(yamldecode(templatefile("${local.template_dir}/deploy-assume-policy.yaml.tftpl", {
-    oidc_arn : aws_iam_openid_connect_provider.github.arn,
+    oidc_arn : data.aws_iam_openid_connect_provider.github.arn,
     repository : each.value.repo
   })))
 
