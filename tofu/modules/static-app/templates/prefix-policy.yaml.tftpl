@@ -1,6 +1,6 @@
 Version: "2012-10-17"
 Statement:
-- Sid: DocumentationPrefixPolicy
+- Sid: StaticAppDeployPolicy
   Effect: Allow
   Action:
   - s3:PutObject
@@ -10,4 +10,4 @@ Statement:
   - s3:GetBucketLocation
   Resource:
   - ${bucket_arn}
-  - ${bucket_arn}/${prefix}/*
+  - ${bucket_arn}/*
