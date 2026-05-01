@@ -10,13 +10,13 @@ locals {
   fqdn       = "${var.subdomain}.${var.domain}"
   lambda_dir = "${path.module}/lambda"
   log_groups = toset(["/aws/lambda/${local.prefix}-oidc"])
-  project            = "cfa-static-apps"
+  project            = var.project
   prefix             = join("-", [local.project, var.environment])
   protected_prefixes = keys(local.apps)
   tags_base = {
     application = local.prefix
-    program     = "engineering"
-    project     = "cfa-static-apps"
+    program     = var.program
+    project     = var.project
     environment = var.environment
   }
   template_dir = "${path.module}/templates"

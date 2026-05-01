@@ -4,6 +4,18 @@ variable "apps" {
   default     = {}
 }
 
+variable "program" {
+  description = "The organizational program the static apps project belongs to."
+  type        = string
+  default     = "engineering"
+}
+
+variable "project" {
+  description = "The name of the static apps project."
+  type        = string
+  default     = "static-apps"
+}
+
 variable "bucket_name" {
   description = "The name of the S3 bucket for static app hosting."
   type        = string
