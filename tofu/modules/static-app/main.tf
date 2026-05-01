@@ -42,9 +42,13 @@ resource "aws_kms_key" "static" {
   description         = "Encryption key for static app hosting"
   enable_key_rotation = true
   policy = jsonencode(yamldecode(templatefile("${local.template_dir}/key-policy.yaml.tftpl", {
-    account_id : data.aws_caller_identity.identity.account_id,
-    partition : data.aws_partition.current.partition,
-    bucket_name : var.bucket_name,
+    account_id  : data.aws_caller_identity.identity.account_id,
+    partition   : data.aws_partition.current.partition,
+    prefix      : local.prefix,
+    bucket_names : concat(
+      [var.bucket_name],
+      [for k in keys(local.apps) : "${local.prefix}-${k}"]
+    ),
     cloudfront_distribution_arn : aws_cloudfront_distribution.endpoint.arn,
   })))
 
@@ -108,6 +112,43 @@ resource "aws_s3_object" "index" {
   force_destroy  = var.force_delete
 
   tags = local.tags
+}
+
+module "app_bucket" {
+  for_each = local.apps
+
+  source  = "boldlink/s3/aws"
+  version = "~> 2.5.0"
+
+  bucket                 = "${local.prefix}-${each.key}"
+  sse_sse_algorithm      = "aws:kms"
+  sse_bucket_key_enabled = true
+  sse_kms_master_key_arn = aws_kms_key.static.arn
+  versioning_status      = "Enabled"
+  force_destroy          = var.force_delete
+
+  bucket_policy = jsonencode(yamldecode(templatefile("${local.template_dir}/bucket-policy.yaml.tftpl", {
+    bucket_arn                  : "arn:${data.aws_partition.current.partition}:s3:::${local.prefix}-${each.key}",
+    vpc_endpoint_id             : data.aws_vpc_endpoint.s3.id,
+    cloudfront_distribution_arn : aws_cloudfront_distribution.endpoint.arn,
+  })))
+
+  s3_logging = {
+    target_bucket = var.logging_bucket
+    target_prefix = "${local.aws_logs_path}/s3accesslogs/${local.prefix}-${each.key}"
+  }
+
+  lifecycle_configuration = [{
+    id                                     = "static-site"
+    status                                 = "Enabled"
+    prefix                                 = ""
+    abort_incomplete_multipart_upload_days = 7
+    noncurrent_version_expiration = {
+      noncurrent_days = 30
+    }
+  }]
+
+  tags = merge(local.tags, { use = "static-site", app = each.key })
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "datadog" {

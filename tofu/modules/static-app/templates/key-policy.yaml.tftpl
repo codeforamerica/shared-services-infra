@@ -1,5 +1,5 @@
 Version: "2012-10-17"
-Id: key-policy-${bucket_name}
+Id: key-policy-${prefix}
 Statement:
 - Sid: Enable IAM User Permissions
   Effect: Allow
@@ -21,8 +21,10 @@ Statement:
     StringLike:
       kms:CallerAccount: "${account_id}"
       kms:EncryptionContext:aws:s3:arn:
-        - arn:${partition}:s3:::${bucket_name}
-        - arn:${partition}:s3:::${bucket_name}/*
+%{ for name in bucket_names ~}
+        - arn:${partition}:s3:::${name}
+        - arn:${partition}:s3:::${name}/*
+%{ endfor ~}
 - Sid: Allow CloudFront to decrypt bucket objects
   Effect: Allow
   Principal:

@@ -7,11 +7,10 @@ resource "aws_iam_policy" "prefix" {
 
   name        = "${local.prefix}-deploy-${each.key}"
   path        = "/"
-  description = "Allow deploy access to ${each.key} in the static apps bucket"
+  description = "Allow deploy access to the ${each.key} static app bucket"
 
   policy = jsonencode(yamldecode(templatefile("${local.template_dir}/prefix-policy.yaml.tftpl", {
-    bucket_arn : module.bucket.arn,
-    prefix : each.key
+    bucket_arn : module.app_bucket[each.key].arn,
   })))
 
   tags = local.tags
