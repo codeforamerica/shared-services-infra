@@ -65,8 +65,8 @@ point for both types.
   configurable cache behavior
 - **Okta SSO protection** — all prefixes are OIDC-protected at the edge; no
   unauthenticated access
-- **Per-app deploy isolation** — each app gets its own IAM role scoped to its
-  S3 prefix; a compromised deploy credential cannot affect other apps
+- **Per-app deploy isolation** — each app gets its own S3 bucket and IAM role
+  scoped to that bucket; a compromised deploy credential cannot affect other apps
 - **Optional CloudFront cache invalidation** — on deploy, the cache for the
   app's prefix can be invalidated automatically
 

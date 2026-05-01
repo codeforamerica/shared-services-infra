@@ -32,9 +32,9 @@ customization is required unless your static files live in a subdirectory
 
 | Name                        | Description                                                                       |
 |-----------------------------|-----------------------------------------------------------------------------------|
-| `STATIC_BUCKET`             | Name of the shared S3 bucket for static app hosting.                              |
-| `STATIC_PREFIX`             | S3 key prefix reserved for this app (e.g. `my-app`).                             |
-| `CLOUDFRONT_DISTRIBUTION_ID`| CloudFront distribution ID. If set, the cache for this app's prefix is invalidated on each deploy. |
+| `STATIC_BUCKET`             | Name of your app's dedicated S3 bucket (e.g. `static-apps-development-my-app`).  |
+| `STATIC_PREFIX`             | Your app's URL path segment (e.g. `my-app`). Used only for CloudFront cache invalidation — not an S3 key prefix. Files are synced to the bucket root. |
+| `CLOUDFRONT_DISTRIBUTION_ID`| CloudFront distribution ID. If set, the cache for your app's path is invalidated on each deploy. |
 | `AWS_REGION`                | AWS region. Defaults to `us-east-1` if not set.                                  |
 
 ## Inputs
@@ -64,7 +64,7 @@ The deployment workflow is intentionally minimal. It does three things:
 
 1. Assumes the deploy IAM role via OIDC (no long-lived AWS credentials in
    your repository)
-1. Syncs your files to the app's reserved S3 prefix using `aws s3 sync
+1. Syncs your files to the app's dedicated S3 bucket root using `aws s3 sync
    --delete`; files removed from your repository are removed from S3
 1. Optionally invalidates the CloudFront cache for your prefix so users see
    the new version immediately
@@ -89,7 +89,7 @@ sequenceDiagram
   AR->>+IR: Call deploy-static workflow
   IR->>STS: Assume deploy role (OIDC)
   STS-->>IR: Temporary credentials
-  IR->>S3: Sync files to bucket prefix (--delete)
+  IR->>S3: Sync files to bucket root (--delete)
   IR->>CF: Invalidate cache for prefix (if configured)
   IR-->>-AR: Workflow complete
   AR->>AR: Report success
