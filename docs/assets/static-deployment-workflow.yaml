@@ -1,0 +1,24 @@
+name: Deploy static app
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to.
+        default: development
+        required: true
+        type: environment
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    uses: codeforamerica/shared-services-infra/.github/workflows/deploy-static.yml@main
+    with:
+      environment: ${{ inputs.environment || 'development' }}
+    secrets: inherit

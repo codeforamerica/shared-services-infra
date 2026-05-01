@@ -15,6 +15,22 @@ of the underlying infrastructure and deployment details, allowing teams to
 quickly deploy prototypes for feedback, or building new services without the
 burden of fully maintaining their hosted tooling.
 
+## Scope of this section
+
+This section covers **container-based deployments**: Docker containers running
+on ECS behind a load balancer. This is the right path for applications with
+persistent data, server-side logic, or credentialed API calls. The usage
+guide here assumes an engineering audience working directly with the
+infrastructure repository.
+
+SharedServices also supports **static deployments** — files served from S3
+via CloudFront — documented separately under [Static App Hosting][static].
+
+For engineering-adjacent teams building internal tools, the
+[sharedservices-app-template][template] provides a builder-friendly entry
+point for both deployment types. It handles the scaffolding and configuration
+that this guide asks you to do manually.
+
 ## Limitations
 
 This is still an experimental service with limited support. New features are
@@ -34,3 +50,5 @@ the following:
 
 [appspec]: ../architecture/appspec.md
 [repo]: https://github.com/codeforamerica/shared-services-infra
+[static]: ../static/index.md
+[template]: https://github.com/codeforamerica/sharedservices-app-template
