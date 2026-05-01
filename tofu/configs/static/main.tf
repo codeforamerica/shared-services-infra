@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket         = "shared-services-${var.environment}-tfstate"
-    key            = "static.tfstate"
+    key            = "static-apps.tfstate"
     region         = "us-east-1"
     dynamodb_table = "${var.environment}.tfstate"
   }
@@ -25,9 +25,11 @@ module "static" {
   source = "../../modules/static-app"
 
   environment    = var.environment
-  bucket_name    = "apps.${var.environment == "production" ? "services.cfa.codes" : "dev.services.cfa.codes"}"
-  force_delete   = var.environment != "production"
-  domain         = var.environment == "production" ? "services.cfa.codes" : "dev.services.cfa.codes"
+  bucket_name    = var.bucket_name
+  force_delete   = var.force_delete
+  domain         = var.domain
+  program        = var.program
+  project        = var.project
   subdomain      = "apps"
   apps           = module.appspec
   logging_bucket = module.inputs.values["logging/bucket"]
