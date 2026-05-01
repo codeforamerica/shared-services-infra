@@ -29,4 +29,4 @@ runs:
     - name: Initialize OpenTofu
       shell: bash
       working-directory: ./tofu/configs/${{ inputs.config }}
-      run: tofu init
+      run: tofu init -reconfigure
