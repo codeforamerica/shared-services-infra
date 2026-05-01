@@ -34,7 +34,7 @@ jobs:
       - name: Sync to S3
         run: |
           aws s3 sync "${{ inputs.source_dir }}" \
-            "s3://${{ vars.STATIC_BUCKET }}/${{ vars.STATIC_PREFIX }}" \
+            "s3://${{ vars.STATIC_BUCKET }}" \
             --delete \
             --exclude ".git/*" \
             --exclude ".github/*"
