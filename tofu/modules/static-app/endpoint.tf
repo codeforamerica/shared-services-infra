@@ -7,7 +7,7 @@ resource "aws_cloudfront_origin_access_control" "endpoint" {
 }
 
 resource "aws_cloudfront_function" "endpoint_rewrite" {
-  name    = "cfa-static-apps-${var.environment}-rewrite"
+  name    = "${local.prefix}-rewrite"
   comment = "Rewrite requests to direct to the index.html file in the S3 bucket."
   runtime = "cloudfront-js-2.0"
   publish = true
@@ -38,6 +38,15 @@ resource "aws_cloudfront_distribution" "endpoint" {
     origin_access_control_id = aws_cloudfront_origin_access_control.endpoint.id
   }
 
+  dynamic "origin" {
+    for_each = local.apps
+    content {
+      domain_name              = module.app_bucket[origin.key].bucket_regional_domain_name
+      origin_id                = origin.key
+      origin_access_control_id = aws_cloudfront_origin_access_control.endpoint.id
+    }
+  }
+
   logging_config {
     include_cookies = false
     bucket          = "${var.logging_bucket}.s3.amazonaws.com"
@@ -60,6 +69,28 @@ resource "aws_cloudfront_distribution" "endpoint" {
       event_type   = "viewer-request"
       lambda_arn   = aws_lambda_function.oidc.qualified_arn
       include_body = false
+    }
+  }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = local.app_behaviors
+    content {
+      path_pattern           = ordered_cache_behavior.value.path
+      allowed_methods        = ["GET", "HEAD"]
+      cached_methods         = ["GET", "HEAD"]
+      target_origin_id       = ordered_cache_behavior.value.app
+      compress               = true
+      default_ttl            = 0
+      max_ttl                = 0
+      min_ttl                = 0
+      viewer_protocol_policy = "redirect-to-https"
+      cache_policy_id        = data.aws_cloudfront_cache_policy.endpoint.id
+
+      lambda_function_association {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.oidc.qualified_arn
+        include_body = false
+      }
     }
   }
 

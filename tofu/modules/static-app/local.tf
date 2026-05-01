@@ -1,5 +1,9 @@
 locals {
   apps          = var.apps
+  app_behaviors = merge(
+    { for k in keys(var.apps) : "${k}_exact" => { app = k, path = "/${k}" } },
+    { for k in keys(var.apps) : "${k}_tree"  => { app = k, path = "/${k}/*" } }
+  )
   aws_logs_path = "/AWSLogs/${data.aws_caller_identity.identity.account_id}"
   build_dir     = "${path.module}/dist"
   datadog_lambda = [
