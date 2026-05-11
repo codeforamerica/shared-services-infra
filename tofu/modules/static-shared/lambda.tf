@@ -1,4 +1,3 @@
-# Build the package.json file for the OIDC Lambda function.
 resource "local_file" "pkg_json" {
   content = templatefile("${local.lambda_dir}/oidc/package.json.tftpl", {
     lambda_name = "${local.prefix}-oidc",
@@ -6,17 +5,15 @@ resource "local_file" "pkg_json" {
   filename = "${local.build_dir}/oidc/package.json"
 }
 
-# Build the Lambda function code.
 resource "local_file" "lambda_js" {
   content = templatefile("${local.lambda_dir}/oidc/index.js.tftpl", {
-    protected_prefixes = local.protected_prefixes,
-    secret_arn         = module.secrets.secrets["OIDC_SETTINGS"].secret_arn
+    apps_domain = local.apps_domain,
+    secret_arn  = module.secrets.secrets["OIDC_SETTINGS"].secret_arn
   })
 
   filename = "${local.build_dir}/oidc/index.js"
 }
 
-# Install dependencies using npm when package.json changes.
 resource "null_resource" "npm_install" {
   depends_on = [local_file.pkg_json, local_file.lambda_js]
 

@@ -1,13 +1,13 @@
-variable "bucket_name" {
-  type        = string
-  description = "Name of the S3 bucket for static app hosting."
-  default     = "apps.dev.services.cfa.codes"
-}
-
 variable "domain" {
   type        = string
   description = "Root domain for static app hosting."
   default     = "dev.services.cfa.codes"
+}
+
+variable "doppler_workspace_id" {
+  description = "Doppler workspace ID for syncing secrets."
+  sensitive   = true
+  type        = string
 }
 
 variable "environment" {
@@ -16,20 +16,39 @@ variable "environment" {
   default     = "development"
 }
 
+variable "infra_project" {
+  type        = string
+  description = <<-EOT
+    Name of the core infrastructure project whose SSM outputs this config reads.
+    EOT
+  default     = "shared-services"
+}
+
 variable "force_delete" {
   type        = bool
-  description = "Whether to allow force-deletion of resources (e.g. non-empty S3 buckets). Should be false in production."
-  default     = true
+  description = <<-EOT
+    Whether to allow force-deletion of non-empty S3 buckets. Should be false in
+    production.
+    EOT
+  default     = false
+}
+
+variable "log_retention_days" {
+  description = "Number of days to retain logs for static hosting resources."
+  type        = number
+  default     = 30
 }
 
 variable "program" {
   type        = string
-  description = "Name of the program the static apps project belongs to."
+  description = <<-EOT
+    Name of the program the shared static hosting project belongs to.
+    EOT
   default     = "engineering"
 }
 
 variable "project" {
   type        = string
-  description = "Name of the static apps project."
-  default     = "static-apps"
+  description = "Name of the shared static hosting project."
+  default     = "static-hosting"
 }

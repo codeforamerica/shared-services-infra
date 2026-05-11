@@ -65,7 +65,6 @@ jobs:
 
       TF_VAR_environment: ${{ vars.TF_VAR_ENVIRONMENT }}
       TF_VAR_program: ${{ vars.TF_VAR_PROGRAM }}
-      TF_VAR_project: ${{ vars.TF_VAR_PROJECT }}
 
       # Set an application variable so that if we end up planning the hosting
       # config, it has a value.

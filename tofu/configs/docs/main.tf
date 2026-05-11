@@ -17,7 +17,7 @@ module "appspec" {
 module "inputs" {
   source = "github.com/codeforamerica/tofu-modules-aws-ssm-inputs?ref=1.0.0"
 
-  prefix = "/shared-services/${var.environment}"
+  prefix = "/${var.infra_project}/${var.environment}"
   inputs = ["logging/bucket", "vpc/id"]
 }
 

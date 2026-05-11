@@ -1,56 +1,45 @@
-variable "apps" {
-  description = "Static applications to host."
-  type        = any
-  default     = {}
+variable "application_name" {
+  description = "Name of the static application (matches the spec name field)."
+  type        = string
+}
+
+variable "bucket_arn" {
+  description = "ARN of the shared static app content S3 bucket."
+  type        = string
+}
+
+variable "domain" {
+  description = "Root domain for static application hosting."
+  type        = string
+}
+
+variable "environment" {
+  description = "Deployment environment."
+  type        = string
 }
 
 variable "program" {
-  description = "The organizational program the static apps project belongs to."
+  description = "Organizational program this app belongs to."
   type        = string
   default     = "engineering"
 }
 
 variable "project" {
-  description = "The name of the static apps project."
+  description = "Project name used in resource naming and tagging."
   type        = string
   default     = "static-apps"
 }
 
-variable "bucket_name" {
-  description = "The name of the S3 bucket for static app hosting."
-  type        = string
-  default     = "apps.dev.cfa.codes"
-}
-
-variable "domain" {
-  description = "The domain for static app hosting."
-  type        = string
-  default     = "dev.cfa.codes"
-}
-
-variable "environment" {
-  description = "The environment for static app hosting."
+variable "repo" {
+  description = <<-EOT
+    GitHub repository (org/name) that deploys this application. Used to scope
+    the OIDC trust policy.
+    EOT
   type        = string
 }
 
-variable "force_delete" {
-  description = "Whether to allow resources to be deleted."
-  type        = bool
-  default     = false
-}
-
-variable "logging_bucket" {
-  description = "The S3 bucket used for logging."
-  type        = string
-}
-
-variable "subdomain" {
-  description = "The subdomain for static app hosting."
-  type        = string
-  default     = "apps"
-}
-
-variable "vpc_id" {
-  description = "The VPC where the static app hosting resources will be deployed."
-  type        = string
+variable "tags" {
+  description = "A map of tags to apply to all resources."
+  type        = map(string)
+  default     = {}
 }

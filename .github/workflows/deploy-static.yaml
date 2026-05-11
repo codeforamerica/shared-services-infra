@@ -30,11 +30,11 @@ jobs:
         with:
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
           role-session-name: github-${{ github.event.repository.name }}-${{ github.run_id }}
-          role-to-assume: ${{ secrets.AWS_STATIC_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
       - name: Sync to S3
         run: |
           aws s3 sync "${{ inputs.source_dir }}" \
-            "s3://${{ vars.STATIC_BUCKET }}" \
+            "s3://${{ vars.STATIC_BUCKET }}/${{ vars.STATIC_PREFIX }}" \
             --delete \
             --exclude ".git/*" \
             --exclude ".github/*"

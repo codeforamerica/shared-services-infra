@@ -6,19 +6,6 @@ resource "aws_cloudfront_origin_access_control" "endpoint" {
   signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_function" "endpoint_rewrite" {
-  name    = "${local.prefix}-rewrite"
-  comment = "Rewrite requests to direct to the index.html file in the S3 bucket."
-  runtime = "cloudfront-js-2.0"
-  publish = true
-
-  code = file("${local.file_dir}/rewrite-function.js")
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 # TODO: Use a WAF?
 #trivy:ignore:AVD-AWS-0011
 #trivy:ignore:AVD-AWS-0010
@@ -28,7 +15,7 @@ resource "aws_cloudfront_distribution" "endpoint" {
   enabled             = true
   comment             = "Serve static apps from S3."
   is_ipv6_enabled     = true
-  aliases             = [local.fqdn]
+  aliases             = [local.apps_domain, "*.${local.apps_domain}"]
   price_class         = "PriceClass_100"
   default_root_object = "index.html"
 
@@ -38,19 +25,10 @@ resource "aws_cloudfront_distribution" "endpoint" {
     origin_access_control_id = aws_cloudfront_origin_access_control.endpoint.id
   }
 
-  dynamic "origin" {
-    for_each = local.apps
-    content {
-      domain_name              = module.app_bucket[origin.key].bucket_regional_domain_name
-      origin_id                = origin.key
-      origin_access_control_id = aws_cloudfront_origin_access_control.endpoint.id
-    }
-  }
-
   logging_config {
     include_cookies = false
     bucket          = "${var.logging_bucket}.s3.amazonaws.com"
-    prefix          = "cloudfront/${local.fqdn}"
+    prefix          = "cloudfront/${local.apps_domain}"
   }
 
   default_cache_behavior {
@@ -72,26 +50,19 @@ resource "aws_cloudfront_distribution" "endpoint" {
     }
   }
 
-  dynamic "ordered_cache_behavior" {
-    for_each = local.app_behaviors
-    content {
-      path_pattern           = ordered_cache_behavior.value.path
-      allowed_methods        = ["GET", "HEAD"]
-      cached_methods         = ["GET", "HEAD"]
-      target_origin_id       = ordered_cache_behavior.value.app
-      compress               = true
-      default_ttl            = 0
-      max_ttl                = 0
-      min_ttl                = 0
-      viewer_protocol_policy = "redirect-to-https"
-      cache_policy_id        = data.aws_cloudfront_cache_policy.endpoint.id
+  # Return a friendly 404 page for missing content or unknown app subdomains.
+  custom_error_response {
+    error_code            = 403
+    response_code         = 404
+    response_page_path    = "/404.html"
+    error_caching_min_ttl = 10
+  }
 
-      lambda_function_association {
-        event_type   = "viewer-request"
-        lambda_arn   = aws_lambda_function.oidc.qualified_arn
-        include_body = false
-      }
-    }
+  custom_error_response {
+    error_code            = 404
+    response_code         = 404
+    response_page_path    = "/404.html"
+    error_caching_min_ttl = 10
   }
 
   restrictions {
@@ -111,8 +82,9 @@ resource "aws_cloudfront_distribution" "endpoint" {
 }
 
 resource "aws_acm_certificate" "endpoint" {
-  domain_name       = local.fqdn
-  validation_method = "DNS"
+  domain_name               = local.apps_domain
+  subject_alternative_names = ["*.${local.apps_domain}"]
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true
@@ -145,15 +117,30 @@ resource "aws_acm_certificate_validation" "endpoint" {
   ]
 }
 
+# Exact record for the shared root domain (apps.{domain}).
 resource "aws_route53_record" "endpoint" {
   for_each = toset(["A", "AAAA"])
 
-  name    = local.fqdn
+  name    = local.apps_domain
   type    = each.value
   zone_id = data.aws_route53_zone.domain.zone_id
 
   alias {
-    # CloudFront doesn't provide a health check.
+    evaluate_target_health = false
+    name                   = aws_cloudfront_distribution.endpoint.domain_name
+    zone_id                = aws_cloudfront_distribution.endpoint.hosted_zone_id
+  }
+}
+
+# Wildcard record routes all app subdomains (*.apps.{domain}) to the same distribution.
+resource "aws_route53_record" "wildcard" {
+  for_each = toset(["A", "AAAA"])
+
+  name    = "*.${local.apps_domain}"
+  type    = each.value
+  zone_id = data.aws_route53_zone.domain.zone_id
+
+  alias {
     evaluate_target_health = false
     name                   = aws_cloudfront_distribution.endpoint.domain_name
     zone_id                = aws_cloudfront_distribution.endpoint.hosted_zone_id
