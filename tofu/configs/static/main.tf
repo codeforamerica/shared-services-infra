@@ -44,6 +44,7 @@ module "outputs" {
     "application/tag"     = aws_servicecatalogappregistry_application.static.application_tag["awsApplication"]
     "bucket/arn"          = module.static.bucket_arn
     "bucket/name"         = module.static.bucket_name
+    "distribution/arn"    = module.static.distribution_arn
     "distribution/domain" = module.static.distribution_domain
     "distribution/id"     = module.static.distribution_id
     "kms/key-arn"         = module.static.kms_key_arn

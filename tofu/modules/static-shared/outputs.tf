@@ -8,6 +8,11 @@ output "bucket_name" {
   value       = module.bucket.bucket
 }
 
+output "distribution_arn" {
+  description = "ARN of the shared CloudFront distribution."
+  value       = aws_cloudfront_distribution.endpoint.arn
+}
+
 output "distribution_domain" {
   description = "CloudFront distribution domain name."
   value       = aws_cloudfront_distribution.endpoint.domain_name

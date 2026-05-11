@@ -4,9 +4,10 @@ resource "aws_iam_policy" "deploy" {
   description = "Allow deploy access to the ${var.application_name} static app prefix."
 
   policy = jsonencode(yamldecode(templatefile("${path.module}/templates/deploy-policy.yaml.tftpl", {
-    bucket_arn  = var.bucket_arn,
-    application = var.application_name,
-    kms_key_arn = var.kms_key_arn,
+    application      = var.application_name,
+    bucket_arn       = var.bucket_arn,
+    distribution_arn = var.distribution_arn,
+    kms_key_arn      = var.kms_key_arn,
   })))
 
   tags = var.tags

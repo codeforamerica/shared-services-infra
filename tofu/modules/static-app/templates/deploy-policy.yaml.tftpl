@@ -25,3 +25,9 @@ Statement:
       - kms:GenerateDataKey
     Resource:
       - ${kms_key_arn}
+  - Sid: StaticAppCloudfrontInvalidation
+    Effect: Allow
+    Action:
+      - cloudfront:CreateInvalidation
+    Resource:
+      - ${distribution_arn}

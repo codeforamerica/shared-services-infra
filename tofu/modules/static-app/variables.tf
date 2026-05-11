@@ -8,6 +8,13 @@ variable "bucket_arn" {
   type        = string
 }
 
+variable "distribution_arn" {
+  description = <<-EOT
+    ARN of the shared CloudFront distribution serving static app content.
+    EOT
+  type        = string
+}
+
 variable "kms_key_arn" {
   description = <<-EOT
     ARN of the KMS key used to encrypt the shared static hosting S3 bucket.

@@ -17,7 +17,7 @@ module "inputs" {
   source = "github.com/codeforamerica/tofu-modules-aws-ssm-inputs?ref=1.0.0"
 
   prefix = "/${var.infra_project}/${var.environment}/static"
-  inputs = ["application/tag", "bucket/arn", "kms/key-arn"]
+  inputs = ["application/tag", "bucket/arn", "distribution/arn", "kms/key-arn"]
 }
 
 resource "aws_servicecatalogappregistry_application" "application" {
@@ -33,6 +33,7 @@ module "app" {
 
   application_name = module.appspec.name
   bucket_arn       = module.inputs.values["bucket/arn"]
+  distribution_arn = module.inputs.values["distribution/arn"]
   kms_key_arn      = module.inputs.values["kms/key-arn"]
   domain           = var.domain
   environment      = var.environment
