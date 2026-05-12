@@ -41,6 +41,20 @@ characters except for dash (`-`).
 application. It should include the owner and repository name in the format
 `owner/repo`. This is reserved for future use.
 
+## `type`
+
+`type` defines the deployment type for the application. Supported values are
+`container` and `static`. Defaults to `container` if not provided.
+
+- `container` — deploys a Node.js/Fastify app in Docker via ECS. Right for apps
+  with persistent data, credentialed API calls, or server-side logic.
+- `static` — deploys a collection of static files (HTML, CSS, JS) via S3 +
+  CloudFront. Right for dashboards, calculators, reference pages, and other
+  tools with no server-side requirements.
+
+See the [static app hosting](../static/) documentation for setup instructions
+when using `type: static`.
+
 ## `enabled`
 
 `enabled` defines whether the application is enabled. If set to `false`, the
