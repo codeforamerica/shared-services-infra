@@ -13,14 +13,14 @@ runs:
   using: composite
   steps:
     - name: Cache OpenTofu
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ./tofu/configs/${{ inputs.config }}/.terraform
         key: ${{ runner.os }}-tofu-${{ inputs.config }}-${{ inputs.cache-key }}-${{ hashFiles('./tofu/configs/${{ inputs.config }}/.terraform.lock.hcl') }}
         restore-keys: |
           ${{ runner.os }}-tofu-${{ inputs.config }}-${{ inputs.cache-key }}-
     - name: Setup OpenTofu
-      uses: opentofu/setup-opentofu@v1
+      uses: opentofu/setup-opentofu@v2
       with:
         tofu_wrapper: false
     - name: Display OpenTofu version

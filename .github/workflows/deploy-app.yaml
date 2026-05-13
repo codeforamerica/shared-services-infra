@@ -41,14 +41,14 @@ jobs:
         with:
           input-string: ${{ inputs.distinct_id || github.run_id }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Verify the application exists
         uses: andstor/file-existence-action@v3
         with:
           fail: true
           files: "tofu/configs/hosting/specs/${{ inputs.application }}.yaml"
       - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
