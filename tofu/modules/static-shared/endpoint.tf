@@ -1,3 +1,23 @@
+resource "aws_cloudfront_origin_request_policy" "endpoint" {
+  name    = "${local.prefix}-endpoint"
+  comment = "Forward the viewer Host header to the origin-request rewrite function."
+
+  cookies_config {
+    cookie_behavior = "none"
+  }
+
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+      items = ["Host"]
+    }
+  }
+
+  query_strings_config {
+    query_string_behavior = "none"
+  }
+}
+
 resource "aws_cloudfront_origin_access_control" "endpoint" {
   name                              = "${local.prefix}-endpoint"
   description                       = "Authorize CloudFront to serve content from the static apps S3 bucket."
@@ -10,7 +30,7 @@ resource "aws_cloudfront_origin_access_control" "endpoint" {
 #trivy:ignore:AVD-AWS-0011
 #trivy:ignore:AVD-AWS-0010
 resource "aws_cloudfront_distribution" "endpoint" {
-  depends_on = [aws_lambda_function.oidc]
+  depends_on = [aws_lambda_function.oidc, aws_lambda_function.rewrite]
 
   enabled             = true
   comment             = "Serve static apps from S3."
@@ -40,12 +60,19 @@ resource "aws_cloudfront_distribution" "endpoint" {
     max_ttl          = 0
     min_ttl          = 0
 
-    cache_policy_id        = data.aws_cloudfront_cache_policy.endpoint.id
-    viewer_protocol_policy = "redirect-to-https"
+    cache_policy_id          = data.aws_cloudfront_cache_policy.endpoint.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.endpoint.id
+    viewer_protocol_policy   = "redirect-to-https"
 
     lambda_function_association {
       event_type   = "viewer-request"
       lambda_arn   = aws_lambda_function.oidc.qualified_arn
+      include_body = false
+    }
+
+    lambda_function_association {
+      event_type   = "origin-request"
+      lambda_arn   = aws_lambda_function.rewrite.qualified_arn
       include_body = false
     }
   }

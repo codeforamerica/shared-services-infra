@@ -1,0 +1,45 @@
+/**
+ * Lambda@Edge Function for URI Rewriting (origin-request)
+ *
+ * Extracts the app name from the viewer's Host header (forwarded via the
+ * CloudFront origin request policy) and rewrites the URI to prepend the
+ * per-app S3 prefix. Restores the Host header to the S3 bucket domain
+ * before the request is forwarded so S3 receives the correct hostname.
+ */
+
+const APPS_DOMAIN = '${apps_domain}';
+
+export const handler = async (event) => {
+  const { request } = event.Records[0].cf;
+  const host = request.headers.host[0].value;
+
+  const appName = host === APPS_DOMAIN ? null : host.replace(`.$${APPS_DOMAIN}`, '');
+  const isAppSubdomain = appName && appName !== host;
+
+  console.log(`Rewriting URI for $${isAppSubdomain ? appName : 'root'}: $${request.uri}`);
+
+  request.uri = rewriteUri(request.uri, isAppSubdomain ? appName : null);
+
+  // Restore the Host header to the S3 bucket domain. CloudFront's origin
+  // request policy forwards the viewer's host here, but S3 needs its own
+  // domain. OAC signing happens after this Lambda returns, so CloudFront
+  // re-signs with the restored host.
+  request.headers.host = [{ key: 'Host', value: request.origin.s3.domainName }];
+
+  console.log(`Rewritten URI: $${request.uri}`);
+  return request;
+};
+
+function rewriteUri(requestUri, appName) {
+  if (appName) {
+    requestUri = `/$${appName}$${requestUri}`;
+  }
+
+  if (requestUri.endsWith('/')) {
+    return `$${requestUri}index.html`;
+  } else if (!requestUri.includes('.')) {
+    return `$${requestUri}/index.html`;
+  }
+
+  return requestUri;
+}

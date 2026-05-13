@@ -36,6 +36,7 @@ data "archive_file" "oidc" {
   output_path = "${local.build_dir}/oidc-function.zip"
 }
 
+# Lambda@Edge functions don't support x-ray tracing.
 #trivy:ignore:AVD-AWS-0066
 resource "aws_lambda_function" "oidc" {
   filename         = data.archive_file.oidc.output_path
@@ -43,6 +44,37 @@ resource "aws_lambda_function" "oidc" {
   role             = aws_iam_role.oidc_function.arn
   handler          = "index.handler"
   source_code_hash = data.archive_file.oidc.output_base64sha256
+  publish          = true
+
+  runtime = "nodejs22.x"
+
+  tags = merge(local.tags, { use = "edge-function" })
+}
+
+data "archive_file" "rewrite" {
+  type        = "zip"
+  output_path = "${local.build_dir}/rewrite-function.zip"
+
+  source {
+    content = templatefile("${local.lambda_dir}/rewrite/index.js.tftpl", {
+      apps_domain = local.apps_domain,
+    })
+    filename = "index.js"
+  }
+
+  source {
+    content  = file("${local.lambda_dir}/rewrite/package.json")
+    filename = "package.json"
+  }
+}
+
+#trivy:ignore:AVD-AWS-0066
+resource "aws_lambda_function" "rewrite" {
+  filename         = data.archive_file.rewrite.output_path
+  function_name    = "${local.prefix}-rewrite"
+  role             = aws_iam_role.rewrite_function.arn
+  handler          = "index.handler"
+  source_code_hash = data.archive_file.rewrite.output_base64sha256
   publish          = true
 
   runtime = "nodejs22.x"

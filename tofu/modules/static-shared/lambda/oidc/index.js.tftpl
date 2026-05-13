@@ -1,17 +1,16 @@
 /**
- * Lambda@Edge Function for Okta Authentication
+ * Lambda@Edge Function for Okta Authentication (viewer-request)
  *
- * Intercepts viewer requests to enforce OIDC authentication via Okta and
- * rewrites the request URI so the S3 origin can find content under the
- * per-app prefix (/<app-name>/...).
+ * Intercepts viewer requests to enforce OIDC authentication via Okta.
+ * Sets the X-App-Name header so the downstream origin-request rewrite
+ * function can prefix the URI with the correct per-app S3 path.
  *
  * Request flow:
  * 1. Extract the app name from the Host header subdomain.
  * 2. Pass through unauthenticated requests to the root domain (apps.{domain}).
  * 3. Handle /_callback and /_logout paths for the OIDC flow.
  * 4. Verify the session JWT; redirect to Okta login if missing or invalid.
- * 5. Rewrite the URI to prepend the app prefix and append index.html for
- *    directory requests.
+ * 5. Set X-App-Name header for the rewrite Lambda to consume.
  */
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import * as jose from 'jose';
@@ -79,7 +78,6 @@ export const handler = async (event) => {
   // Requests to the root domain (not an app subdomain) pass through without auth.
   const appName = host === APPS_DOMAIN ? null : host.replace(`.$${APPS_DOMAIN}`, '');
   if (!appName || appName === host) {
-    request.uri = rewriteUri(request.uri, null);
     return request;
   }
 
@@ -96,7 +94,7 @@ export const handler = async (event) => {
         const authResult = await verifyAuthentication(request, secrets, host, requestedUri);
         if (authResult.status) return authResult;
 
-        request.uri = rewriteUri(request.uri, appName);
+        console.log(`Auth verified for app: $${appName}`);
         return request;
     }
   } catch (error) {
@@ -108,27 +106,6 @@ export const handler = async (event) => {
     };
   }
 };
-
-/**
- * Rewrites the request URI to point to the correct S3 object.
- *
- * For app subdomains, prepends the app name as a path prefix so that content
- * stored at s3://bucket/<appName>/... is reachable. For the root domain, just
- * handles index.html expansion.
- */
-function rewriteUri(requestUri, appName) {
-  if (appName) {
-    requestUri = `/$${appName}$${requestUri}`;
-  }
-
-  if (requestUri.endsWith('/')) {
-    return `$${requestUri}index.html`;
-  } else if (!requestUri.includes('.')) {
-    return `$${requestUri}/index.html`;
-  }
-
-  return requestUri;
-}
 
 async function verifyAuthentication(request, secrets, domainName, requestedUri) {
   const cookies = parseCookies(request.headers);

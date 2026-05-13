@@ -6,6 +6,14 @@ resource "aws_cloudwatch_log_group" "oidc" {
   tags = merge({ use = "logging" }, var.tags)
 }
 
+resource "aws_cloudwatch_log_group" "rewrite" {
+  name              = "/aws/lambda/${local.prefix}-rewrite"
+  retention_in_days = var.log_retention_days
+  kms_key_id        = var.logging_key_arn
+
+  tags = merge({ use = "logging" }, var.tags)
+}
+
 resource "aws_cloudwatch_log_subscription_filter" "datadog" {
   depends_on = [aws_cloudwatch_log_group.oidc]
   for_each   = length(local.datadog_lambda) > 0 ? local.log_groups : toset([])

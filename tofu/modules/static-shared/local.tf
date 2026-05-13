@@ -8,7 +8,7 @@ locals {
   ]
   file_dir     = "${path.module}/files"
   lambda_dir   = "${path.module}/lambda"
-  log_groups   = toset([aws_cloudwatch_log_group.oidc.name])
+  log_groups   = toset([aws_cloudwatch_log_group.oidc.name, aws_cloudwatch_log_group.rewrite.name])
   prefix       = "${var.project}-${var.environment}"
   template_dir = "${path.module}/templates"
   tags_base = {
