@@ -67,8 +67,8 @@ jobs:
       TF_VAR_program: ${{ vars.TF_VAR_PROGRAM }}
 
       # Set an application variable so that if we end up planning the hosting
-      # config, it has a value.
-      TF_VAR_application: ${{ vars.TF_VAR_DEFAULT_APPLICATION }}
+      # or static config, it has a value.
+      TF_VAR_application: ${{ inputs.config == 'static' && vars.DEFAULT_STATIC_APPLICATION || vars.DEFAULT_APPLICATION }}
     outputs:
       plan: ${{ steps.plan.outputs.stdout }}
     steps:
