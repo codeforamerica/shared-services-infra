@@ -32,12 +32,6 @@ variable "environment" {
   type        = string
 }
 
-variable "program" {
-  description = "Organizational program this app belongs to."
-  type        = string
-  default     = "engineering"
-}
-
 variable "project" {
   description = "Project name used in resource naming and tagging."
   type        = string

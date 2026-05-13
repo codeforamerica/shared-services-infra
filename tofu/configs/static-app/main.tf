@@ -37,7 +37,6 @@ module "app" {
   kms_key_arn      = module.inputs.values["kms/key-arn"]
   domain           = var.domain
   environment      = var.environment
-  program          = module.appspec.program
   project          = var.project
   repo             = module.appspec.repo
 

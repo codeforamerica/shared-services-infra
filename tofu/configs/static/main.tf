@@ -28,6 +28,7 @@ module "static" {
   force_delete         = var.force_delete
   logging_bucket       = module.inputs.values["logging/bucket"]
   logging_key_arn      = module.inputs.values["logging/key"]
+  log_retention_days   = var.log_retention_days
   program              = var.program
   project              = var.project
   vpc_id               = module.inputs.values["vpc/id"]
