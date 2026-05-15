@@ -13,10 +13,6 @@ data "aws_vpc_endpoint" "s3" {
   service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
 }
 
-data "aws_cloudfront_cache_policy" "endpoint" {
-  name = "Managed-CachingOptimized"
-}
-
 # Find the Datadog forwarder Lambda for CloudWatch log subscriptions.
 data "aws_lambda_functions" "all" {}
 

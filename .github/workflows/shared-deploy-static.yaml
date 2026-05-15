@@ -73,7 +73,7 @@ jobs:
         run: |
           aws cloudfront create-invalidation \
             --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
-            --paths "/${{ inputs.prefix || vars.STATIC_PREFIX }}/*"
+            --paths "/*"
       - name: Print deployment URL
         run: |
           PREFIX="${{ inputs.prefix || vars.STATIC_PREFIX }}"

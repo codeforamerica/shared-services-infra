@@ -29,5 +29,6 @@ Statement:
     Effect: Allow
     Action:
       - cloudfront:CreateInvalidation
+      - cloudfront:GetDistribution
     Resource:
       - ${distribution_arn}

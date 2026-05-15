@@ -2,7 +2,7 @@
  * Lambda@Edge Function for Okta Authentication (viewer-request)
  *
  * Intercepts viewer requests to enforce OIDC authentication via Okta.
- * Sets the X-App-Name header so the downstream origin-request rewrite
+ * Sets the application-name header so the downstream origin-request rewrite
  * function can prefix the URI with the correct per-app S3 path.
  *
  * Request flow:
@@ -10,7 +10,7 @@
  * 2. Pass through unauthenticated requests to the root domain (apps.{domain}).
  * 3. Handle /_callback and /_logout paths for the OIDC flow.
  * 4. Verify the session JWT; redirect to Okta login if missing or invalid.
- * 5. Set X-App-Name header for the rewrite Lambda to consume.
+ * 5. Set application-name header for the rewrite Lambda to consume.
  */
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import * as jose from 'jose';
@@ -95,6 +95,7 @@ export const handler = async (event) => {
         if (authResult.status) return authResult;
 
         console.log(`Auth verified for app: $${appName}`);
+        request.headers['application-name'] = [{ key: 'application-name', value: appName }];
         return request;
     }
   } catch (error) {

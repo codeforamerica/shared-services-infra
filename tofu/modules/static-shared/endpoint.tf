@@ -1,6 +1,34 @@
+resource "aws_cloudfront_cache_policy" "endpoint" {
+  name        = "${local.prefix}-endpoint"
+  comment     = "Cache static app content keyed by application-name so each subdomain has an independent cache."
+  default_ttl = 86400
+  max_ttl     = 31536000
+  min_ttl     = 1
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config {
+      cookie_behavior = "none"
+    }
+
+    headers_config {
+      header_behavior = "whitelist"
+      headers {
+        items = ["application-name"]
+      }
+    }
+
+    query_strings_config {
+      query_string_behavior = "none"
+    }
+
+    enable_accept_encoding_brotli = true
+    enable_accept_encoding_gzip   = true
+  }
+}
+
 resource "aws_cloudfront_origin_request_policy" "endpoint" {
   name    = "${local.prefix}-endpoint"
-  comment = "Forward the viewer Host header to the origin-request rewrite function."
+  comment = "Forward application-name (set by viewer-request Lambda) to the origin-request rewrite function."
 
   cookies_config {
     cookie_behavior = "none"
@@ -9,7 +37,7 @@ resource "aws_cloudfront_origin_request_policy" "endpoint" {
   headers_config {
     header_behavior = "whitelist"
     headers {
-      items = ["Host"]
+      items = ["application-name"]
     }
   }
 
@@ -55,12 +83,9 @@ resource "aws_cloudfront_distribution" "endpoint" {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = local.prefix
-    compress         = true
-    default_ttl      = 0
-    max_ttl          = 0
-    min_ttl          = 0
+    compress        = true
 
-    cache_policy_id          = data.aws_cloudfront_cache_policy.endpoint.id
+    cache_policy_id          = aws_cloudfront_cache_policy.endpoint.id
     origin_request_policy_id = aws_cloudfront_origin_request_policy.endpoint.id
     viewer_protocol_policy   = "redirect-to-https"
 
