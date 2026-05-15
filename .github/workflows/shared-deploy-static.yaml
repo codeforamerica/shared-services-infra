@@ -1,4 +1,7 @@
-name: Deploy static app
+# This workflow is called by other repositories to deploy static applications to
+# S3. It is not used directly by the shared-services-infra repository, but
+# GitHub still requires it to be in `.github/workflows/`.
+name: Deploy static application
 
 on:
   workflow_call:
@@ -9,9 +12,17 @@ on:
         default: development
         type: string
       source_dir:
-        description: Local directory to sync (relative to repo root).
+        description: >-
+          Local directory to sync, relative to the repository or artifact root.
         required: false
         default: "."
+        type: string
+      artifact_name:
+        description: >-
+          Name of a previously uploaded artifact to deploy. If set, the artifact
+          is downloaded and synced directly without checking out the repository.
+        required: false
+        default: ""
         type: string
 
 permissions:
@@ -24,7 +35,15 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        if: inputs.artifact_name == ''
+        uses: actions/checkout@v6
+      - name: Download build artifact
+        if: inputs.artifact_name != ''
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.source_dir }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:

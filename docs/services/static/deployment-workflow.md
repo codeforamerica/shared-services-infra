@@ -24,27 +24,27 @@ customization is required unless your static files live in a subdirectory
 
 ### Secrets
 
-| Name                  | Description                                                    |
-|-----------------------|----------------------------------------------------------------|
-| `AWS_STATIC_ROLE_ARN` | ARN of the IAM role assumed to write files to S3.              |
+| Name                  | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `AWS_STATIC_ROLE_ARN` | ARN of the IAM role assumed to write files to S3. |
 
 ### Variables
 
-| Name                        | Description                                                                       |
-|-----------------------------|-----------------------------------------------------------------------------------|
-| `STATIC_BUCKET`             | Name of your app's dedicated S3 bucket (e.g. `static-apps-development-my-app`).  |
-| `STATIC_PREFIX`             | Your app's URL path segment (e.g. `my-app`). Used only for CloudFront cache invalidation — not an S3 key prefix. Files are synced to the bucket root. |
-| `CLOUDFRONT_DISTRIBUTION_ID`| CloudFront distribution ID. If set, the cache for your app's path is invalidated on each deploy. |
-| `AWS_REGION`                | AWS region. Defaults to `us-east-1` if not set.                                  |
+| Name                         | Description                                                                                                                                           |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `STATIC_BUCKET`              | Name of your app's dedicated S3 bucket (e.g. `static-apps-development-my-app`).                                                                       |
+| `STATIC_PREFIX`              | Your app's URL path segment (e.g. `my-app`). Used only for CloudFront cache invalidation — not an S3 key prefix. Files are synced to the bucket root. |
+| `CLOUDFRONT_DISTRIBUTION_ID` | CloudFront distribution ID. If set, the cache for your app's path is invalidated on each deploy.                                                      |
+| `AWS_REGION`                 | AWS region. Defaults to `us-east-1` if not set.                                                                                                       |
 
 ## Inputs
 
 The reusable workflow accepts two optional inputs:
 
-| Input          | Default | Description                                              |
-|----------------|---------|----------------------------------------------------------|
-| `environment`  | `development` | The GitHub environment to deploy to.              |
-| `source_dir`   | `.`     | Local directory to sync, relative to the repo root. Set this if your static files live in a subdirectory (e.g. `dist` or `public`). |
+| Input         | Default       | Description                                                                                                                         |
+| ------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `environment` | `development` | The GitHub environment to deploy to.                                                                                                |
+| `source_dir`  | `.`           | Local directory to sync, relative to the repo root. Set this if your static files live in a subdirectory (e.g. `dist` or `public`). |
 
 Pass inputs via the `with:` block in your workflow:
 

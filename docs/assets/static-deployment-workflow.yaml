@@ -16,9 +16,39 @@ permissions:
   contents: read
   id-token: write
 
+# Use this pattern if your site needs no build step (e.g. plain HTML, pre-built
+# assets committed to the repo). The shared workflow checks out the repo and
+# syncs the specified directory to S3.
 jobs:
   deploy:
-    uses: codeforamerica/shared-services-infra/.github/workflows/deploy-static.yml@main
+    uses: codeforamerica/shared-services-infra/.github/workflows/shared/deploy-static.yaml@main
     with:
       environment: ${{ inputs.environment || 'development' }}
+      # source_dir: dist  # optional — defaults to repo root
     secrets: inherit
+
+# ──────────────────────────────────────────────────────────────────────────────
+# If your site requires a build step (e.g. npm, Hugo, Jekyll, mkdocs), use the
+# two-job pattern below instead. Build artifacts are uploaded so the deploy job
+# can download them — reusable workflows run in an isolated environment and
+# cannot share a workspace with the calling job.
+#
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v6
+#       - name: Build
+#         run: npm ci && npm run build   # replace with your build command
+#       - uses: actions/upload-artifact@v4
+#         with:
+#           name: site
+#           path: dist/                  # path to your build output
+#
+#   deploy:
+#     needs: build
+#     uses: codeforamerica/shared-services-infra/.github/workflows/shared/deploy-static.yaml@main
+#     with:
+#       environment: ${{ inputs.environment || 'development' }}
+#       artifact_name: site
+#     secrets: inherit

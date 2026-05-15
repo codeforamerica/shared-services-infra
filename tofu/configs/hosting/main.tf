@@ -10,7 +10,7 @@ terraform {
 module "inputs" {
   source = "github.com/codeforamerica/tofu-modules-aws-ssm-inputs?ref=1.0.0"
 
-  prefix = "/${var.project}/${var.environment}"
+  prefix = "/${var.infra_project}/${var.environment}"
   inputs = [
     "application/tag", "hosted-zone/external/id",
     "hosted-zone/internal/id", "logging/bucket", "logging/key",
