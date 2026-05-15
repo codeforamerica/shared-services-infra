@@ -21,11 +21,16 @@ permissions:
 # syncs the specified directory to S3.
 jobs:
   deploy:
-    uses: codeforamerica/shared-services-infra/.github/workflows/shared/deploy-static.yaml@main
+    uses: codeforamerica/shared-services-infra/.github/workflows/shared-deploy-static.yaml@main
     with:
       environment: ${{ inputs.environment || 'development' }}
       # source_dir: dist  # optional — defaults to repo root
     secrets: inherit
+    # If your secret is named differently, map it explicitly instead of
+    # using secrets: inherit:
+    #
+    # secrets:
+    #   AWS_ROLE_ARN: ${{ secrets.AWS_STATIC_ROLE_ARN }}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # If your site requires a build step (e.g. npm, Hugo, Jekyll, mkdocs), use the
@@ -40,15 +45,17 @@ jobs:
 #       - uses: actions/checkout@v6
 #       - name: Build
 #         run: npm ci && npm run build   # replace with your build command
-#       - uses: actions/upload-artifact@v4
+#       - uses: actions/upload-artifact@v8
 #         with:
 #           name: site
 #           path: dist/                  # path to your build output
 #
 #   deploy:
 #     needs: build
-#     uses: codeforamerica/shared-services-infra/.github/workflows/shared/deploy-static.yaml@main
+#     uses: codeforamerica/shared-services-infra/.github/workflows/shared-deploy-static.yaml@main
 #     with:
 #       environment: ${{ inputs.environment || 'development' }}
 #       artifact_name: site
 #     secrets: inherit
+#     # secrets:
+#     #   AWS_ROLE_ARN: ${{ secrets.AWS_STATIC_ROLE_ARN }}

@@ -24,6 +24,10 @@ on:
         required: false
         default: ""
         type: string
+    secrets:
+      AWS_ROLE_ARN:
+        description: IAM role ARN to assume for deployment.
+        required: true
 
 permissions:
   contents: read
