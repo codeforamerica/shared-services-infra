@@ -75,7 +75,7 @@ module "bucket" {
 
   s3_logging = {
     target_bucket = var.logging_bucket
-    target_prefix = "${local.aws_logs_path}/s3accesslogs/${var.bucket_name}"
+    target_prefix = "${local.aws_logs_path}/s3accesslogs/${var.bucket_name}/"
   }
 
   lifecycle_configuration = [{

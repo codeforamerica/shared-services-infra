@@ -1,0 +1,39 @@
+/**
+ * Lambda@Edge Function for URI Rewriting (origin-request)
+ *
+ * Extracts the app name from the viewer's Host header (forwarded via the
+ * CloudFront origin request policy) and rewrites the URI to prepend the
+ * per-app S3 prefix. Restores the Host header to the S3 bucket domain
+ * before the request is forwarded so S3 receives the correct hostname.
+ */
+
+export const handler = async (event) => {
+  const { request } = event.Records[0].cf;
+  const appNameHeader = request.headers['application-name'];
+  const appName = appNameHeader ? appNameHeader[0].value : null;
+
+  console.log(`Rewriting URI for $${appName ?? 'root'}: $${request.uri}`);
+
+  request.uri = rewriteUri(request.uri, appName);
+
+  // Ensure S3 receives its own domain as Host so OAC can sign the request
+  // correctly. CloudFront may otherwise forward the viewer's Host here.
+  request.headers.host = [{ key: 'Host', value: request.origin.s3.domainName }];
+
+  console.log(`Rewritten URI: $${request.uri}`);
+  return request;
+};
+
+function rewriteUri(requestUri, appName) {
+  if (appName) {
+    requestUri = `/$${appName}$${requestUri}`;
+  }
+
+  if (requestUri.endsWith('/')) {
+    return `$${requestUri}index.html`;
+  } else if (!requestUri.includes('.')) {
+    return `$${requestUri}/index.html`;
+  }
+
+  return requestUri;
+}

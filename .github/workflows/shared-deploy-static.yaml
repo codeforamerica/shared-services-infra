@@ -1,0 +1,89 @@
+# This workflow is called by other repositories to deploy static applications to
+# S3. It is not used directly by the shared-services-infra repository, but
+# GitHub still requires it to be in `.github/workflows/`.
+name: Deploy static application
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Environment to deploy to.
+        type: string
+        required: false
+        default: development
+      source_dir:
+        description: >-
+          Local directory to sync, relative to the repository or artifact root.
+        type: string
+        required: false
+        default: "."
+      artifact_name:
+        description: >-
+          Name of a previously uploaded artifact to deploy. If set, the artifact
+          is downloaded and synced directly without checking out the repository.
+        type: string
+        required: false
+        default: ""
+      prefix:
+        description: >-
+          Prefix within the S3 bucket to sync files to. This should be the same
+          as the application name. Defaults to `vars.STATIC_PREFIX` if not set.
+        type: string
+        required: false
+        default: ""
+    secrets:
+      AWS_ROLE_ARN:
+        description: IAM role ARN to assume for deployment.
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        if: inputs.artifact_name == ''
+        uses: actions/checkout@v6
+      - name: Download build artifact
+        if: inputs.artifact_name != ''
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.source_dir }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          role-session-name: github-${{ github.event.repository.name }}-${{ github.run_id }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      - name: Sync to S3
+        run: |
+          aws s3 sync "${{ inputs.source_dir }}" \
+            "s3://${{ vars.STATIC_BUCKET }}/${{ inputs.prefix || vars.STATIC_PREFIX }}" \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*"
+      - name: Invalidate CloudFront cache
+        if: vars.CLOUDFRONT_DISTRIBUTION_ID != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
+      - name: Print deployment URL
+        run: |
+          PREFIX="${{ inputs.prefix || vars.STATIC_PREFIX }}"
+          if [[ -n "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" ]]; then
+            ALIAS=$(aws cloudfront get-distribution \
+              --id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+              --query 'Distribution.DistributionConfig.Aliases.Items[0]' \
+              --output text)
+            DOMAIN="${ALIAS#\*.}"
+            echo "Application deployed to https://${PREFIX}.${DOMAIN}/"
+          else
+            echo "Application deployed to https://${PREFIX}.${{ vars.STATIC_BUCKET }}/"
+          fi

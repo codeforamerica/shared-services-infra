@@ -1,0 +1,7 @@
+{
+  "name": "rewrite-function",
+  "version": "1.0.0",
+  "description": "Lambda@Edge function for URI rewriting",
+  "main": "index.js",
+  "type": "module"
+}

@@ -1,0 +1,245 @@
+/**
+ * Lambda@Edge Function for Okta Authentication (viewer-request)
+ *
+ * Intercepts viewer requests to enforce OIDC authentication via Okta.
+ * Sets the application-name header so the downstream origin-request rewrite
+ * function can prefix the URI with the correct per-app S3 path.
+ *
+ * Request flow:
+ * 1. Extract the app name from the Host header subdomain.
+ * 2. Pass through unauthenticated requests to the root domain (apps.{domain}).
+ * 3. Handle /_callback and /_logout paths for the OIDC flow.
+ * 4. Verify the session JWT; redirect to Okta login if missing or invalid.
+ * 5. Set application-name header for the rewrite Lambda to consume.
+ */
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+import * as jose from 'jose';
+import { randomBytes } from 'crypto';
+import { stringify as stringifyQuery, parse as parseQuery } from 'querystring';
+
+const SECRET_ARN = '${secret_arn}';
+const APPS_DOMAIN = '${apps_domain}';
+const OKTA_DOMAIN = "https://codeforamerica.okta.com";
+const CALLBACK_PATH = '/_callback';
+const LOGOUT_PATH = '/_logout';
+const COOKIE_SETTINGS = 'Path=/; Secure; HttpOnly; SameSite=Lax';
+const SESSION_DURATION_SECONDS = 8 * 60 * 60; // 8 hours
+const ID_TOKEN_COOKIE_NAME = 'IdToken';
+const NONCE_COOKIE_NAME = 'Nonce';
+
+// Cache secrets and JWKS in the global scope to reuse across warm invocations.
+let cachedSecrets = null;
+let cachedJwks = null;
+
+async function getSecrets() {
+  if (cachedSecrets) {
+    console.log('Using cached secrets.');
+    return cachedSecrets;
+  }
+
+  console.log(`Fetching secrets from ARN: $${SECRET_ARN}`);
+  const secretsClient = new SecretsManagerClient({ region: 'us-east-1' });
+  const command = new GetSecretValueCommand({ SecretId: SECRET_ARN });
+
+  try {
+    const data = await secretsClient.send(command);
+    if ('SecretString' in data) {
+      cachedSecrets = JSON.parse(data.SecretString);
+      return cachedSecrets;
+    }
+
+    throw new Error('SecretString not found in Secrets Manager response.');
+  } catch (error) {
+    console.error('Failed to fetch secrets:', error);
+    throw new Error('Could not retrieve secrets from AWS Secrets Manager.');
+  }
+}
+
+async function getJwks(oktaDomain) {
+  if (cachedJwks) {
+    console.log('Using cached JWKS.');
+    return cachedJwks;
+  }
+
+  console.log('Fetching JWKS from Okta.');
+  const jwksUrl = new URL(`$${oktaDomain}/oauth2/v1/keys`);
+  cachedJwks = jose.createRemoteJWKSet(jwksUrl);
+
+  return cachedJwks;
+}
+
+export const handler = async (event) => {
+  const { request } = event.Records[0].cf;
+  const host = request.headers.host[0].value;
+  const requestedUri = `$${request.uri}$${request.querystring ? '?' + request.querystring : ''}`;
+
+  console.log(`Request for host: $${host}, URI: $${requestedUri}`);
+
+  // Requests to the root domain (not an app subdomain) pass through without auth.
+  const appName = host === APPS_DOMAIN ? null : host.replace(`.$${APPS_DOMAIN}`, '');
+  if (!appName || appName === host) {
+    return request;
+  }
+
+  try {
+    const secrets = await getSecrets();
+
+    switch (request.uri) {
+      case CALLBACK_PATH:
+        return handleAuthCallback(request, secrets, host);
+      case LOGOUT_PATH:
+        return handleLogout(secrets, host);
+      default:
+        console.log('Verifying authentication.');
+        const authResult = await verifyAuthentication(request, secrets, host, requestedUri);
+        if (authResult.status) return authResult;
+
+        console.log(`Auth verified for app: $${appName}`);
+        request.headers['application-name'] = [{ key: 'application-name', value: appName }];
+        return request;
+    }
+  } catch (error) {
+    console.error('Unhandled error in handler:', error);
+    return {
+      status: '500',
+      statusDescription: 'Internal Server Error',
+      body: 'An unexpected error occurred. Please check the logs.',
+    };
+  }
+};
+
+async function verifyAuthentication(request, secrets, domainName, requestedUri) {
+  const cookies = parseCookies(request.headers);
+  const idToken = cookies[ID_TOKEN_COOKIE_NAME];
+
+  if (!idToken) {
+    console.log('No IdToken cookie found. Redirecting to login.');
+    return redirectToLogin(request, secrets, domainName, requestedUri);
+  }
+
+  try {
+    console.log('Verifying IdToken...');
+    const jwks = await getJwks(OKTA_DOMAIN);
+    const { payload } = await jose.jwtVerify(idToken, jwks, {
+      issuer: OKTA_DOMAIN,
+      audience: secrets.client_id,
+    });
+
+    console.log(`Token verified for user: $${payload.sub}`);
+    return request;
+  } catch (err) {
+    console.error('IdToken verification failed:', err.message);
+    return redirectToLogin(request, secrets, domainName, requestedUri);
+  }
+}
+
+async function handleAuthCallback(request, secrets, domainName) {
+  const cookies = parseCookies(request.headers);
+  const query = parseQuery(request.querystring);
+  const { code, state } = query;
+
+  const decodedState = JSON.parse(Buffer.from(state, 'base64').toString());
+  if (decodedState.nonce !== cookies[NONCE_COOKIE_NAME]) {
+    throw new Error('Invalid state parameter. Possible CSRF attack.');
+  }
+
+  console.log('Exchanging authorization code for tokens...');
+  const tokenEndpoint = new URL(`$${OKTA_DOMAIN}/oauth2/v1/token`);
+  const redirectUri = `https://$${domainName}$${CALLBACK_PATH}`;
+  const basicAuth = Buffer.from(`$${secrets.client_id}:$${secrets.client_secret}`).toString('base64');
+
+  const tokenResponse = await fetch(tokenEndpoint.toString(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic $${basicAuth}`,
+    },
+    body: stringifyQuery({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+    }),
+  });
+
+  if (!tokenResponse.ok) {
+    const errorBody = await tokenResponse.text();
+    throw new Error(`Failed to exchange code for token: $${errorBody}`);
+  }
+
+  const { id_token } = await tokenResponse.json();
+
+  console.log('Token received. Setting session cookie and redirecting.');
+  return {
+    status: '302',
+    statusDescription: 'Found',
+    headers: {
+      'location': [{ key: 'Location', value: decodedState.requestedUri }],
+      'set-cookie': [
+        { key: 'Set-Cookie', value: `$${ID_TOKEN_COOKIE_NAME}=$${id_token}; Max-Age=$${SESSION_DURATION_SECONDS}; $${COOKIE_SETTINGS}` },
+        { key: 'Set-Cookie', value: `$${NONCE_COOKIE_NAME}=; Max-Age=0; $${COOKIE_SETTINGS}` },
+      ],
+    },
+  };
+}
+
+function redirectToLogin(request, secrets, domainName, requestedUri) {
+  const nonce = randomBytes(16).toString('hex');
+  const state = Buffer.from(JSON.stringify({ nonce, requestedUri })).toString('base64');
+  const redirectUri = `https://$${domainName}$${CALLBACK_PATH}`;
+
+  const loginParams = stringifyQuery({
+    response_type: 'code',
+    client_id: secrets.client_id,
+    redirect_uri: redirectUri,
+    scope: 'openid profile email',
+    state,
+    nonce,
+  });
+
+  const loginUrl = `$${OKTA_DOMAIN}/oauth2/v1/authorize?$${loginParams}`;
+
+  return {
+    status: '302',
+    statusDescription: 'Found',
+    headers: {
+      'location': [{ key: 'Location', value: loginUrl }],
+      'set-cookie': [{ key: 'Set-Cookie', value: `$${NONCE_COOKIE_NAME}=$${nonce}; $${COOKIE_SETTINGS}` }],
+    },
+  };
+}
+
+function handleLogout(secrets, domainName) {
+  const postLogoutRedirectUri = `https://$${domainName}`;
+  const logoutUrl = `$${OKTA_DOMAIN}/oauth2/v1/logout?post_logout_redirect_uri=$${encodeURIComponent(postLogoutRedirectUri)}`;
+
+  console.log('Logging out user.');
+  return {
+    status: '302',
+    statusDescription: 'Found',
+    headers: {
+      'location': [{ key: 'Location', value: logoutUrl }],
+      'set-cookie': [
+        { key: 'Set-Cookie', value: `$${ID_TOKEN_COOKIE_NAME}=; Max-Age=0; $${COOKIE_SETTINGS}` },
+        { key: 'Set-Cookie', value: `$${NONCE_COOKIE_NAME}=; Max-Age=0; $${COOKIE_SETTINGS}` },
+      ],
+    },
+  };
+}
+
+function parseCookies(headers) {
+  const cookies = {};
+  if (headers.cookie) {
+    headers.cookie[0].value.split(';').forEach(cookie => {
+      if (cookie) {
+        const parts = cookie.split('=');
+        const name = parts[0].trim();
+        const value = parts.slice(1).join('=').trim();
+        if (name && value) {
+          cookies[name] = value;
+        }
+      }
+    });
+  }
+
+  return cookies;
+}

@@ -8,12 +8,12 @@ terraform {
     }
 
     doppler = {
-      source = "DopplerHQ/doppler"
+      source  = "DopplerHQ/doppler"
       version = "~> 1.21"
     }
 
     random = {
-      source = "hashicorp/random"
+      source  = "hashicorp/random"
       version = "~> 3.8"
     }
   }

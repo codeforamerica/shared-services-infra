@@ -1,0 +1,83 @@
+resource "local_file" "pkg_json" {
+  content = templatefile("${local.lambda_dir}/oidc/package.json.tftpl", {
+    lambda_name = "${local.prefix}-oidc",
+  })
+  filename = "${local.build_dir}/oidc/package.json"
+}
+
+resource "local_file" "lambda_js" {
+  content = templatefile("${local.lambda_dir}/oidc/index.js.tftpl", {
+    apps_domain = local.apps_domain,
+    secret_arn  = module.secrets.secrets["OIDC_SETTINGS"].secret_arn
+  })
+
+  filename = "${local.build_dir}/oidc/index.js"
+}
+
+resource "null_resource" "npm_install" {
+  depends_on = [local_file.pkg_json, local_file.lambda_js]
+
+  triggers = {
+    package_json_hash = sha256(local_file.pkg_json.content)
+    lambda_hash       = local_file.lambda_js.content_sha256
+    modules_exist     = fileexists("${local.build_dir}/oidc/node_modules/.package-lock.json")
+  }
+
+  provisioner "local-exec" {
+    command = "npm install --prefix ${local.build_dir}/oidc"
+  }
+}
+
+data "archive_file" "oidc" {
+  depends_on = [local_file.pkg_json, local_file.lambda_js, null_resource.npm_install]
+
+  type        = "zip"
+  source_dir  = "${local.build_dir}/oidc"
+  output_path = "${local.build_dir}/oidc-function.zip"
+}
+
+# Lambda@Edge functions don't support x-ray tracing.
+#trivy:ignore:AVD-AWS-0066
+resource "aws_lambda_function" "oidc" {
+  filename         = data.archive_file.oidc.output_path
+  function_name    = "${local.prefix}-oidc"
+  role             = aws_iam_role.oidc_function.arn
+  handler          = "index.handler"
+  source_code_hash = data.archive_file.oidc.output_base64sha256
+  publish          = true
+
+  runtime = "nodejs22.x"
+
+  tags = merge(local.tags, { use = "edge-function" })
+}
+
+data "archive_file" "rewrite" {
+  type        = "zip"
+  output_path = "${local.build_dir}/rewrite-function.zip"
+
+  source {
+    content = templatefile("${local.lambda_dir}/rewrite/index.js.tftpl", {
+      apps_domain = local.apps_domain,
+    })
+    filename = "index.js"
+  }
+
+  source {
+    content  = file("${local.lambda_dir}/rewrite/package.json")
+    filename = "package.json"
+  }
+}
+
+#trivy:ignore:AVD-AWS-0066
+resource "aws_lambda_function" "rewrite" {
+  filename         = data.archive_file.rewrite.output_path
+  function_name    = "${local.prefix}-rewrite"
+  role             = aws_iam_role.rewrite_function.arn
+  handler          = "index.handler"
+  source_code_hash = data.archive_file.rewrite.output_base64sha256
+  publish          = true
+
+  runtime = "nodejs22.x"
+
+  tags = merge(local.tags, { use = "edge-function" })
+}

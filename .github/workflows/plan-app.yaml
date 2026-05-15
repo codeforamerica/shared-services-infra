@@ -38,21 +38,20 @@ jobs:
       TF_VAR_application: ${{ inputs.application }}
       TF_VAR_environment: ${{ vars.TF_VAR_ENVIRONMENT }}
       TF_VAR_program: ${{ vars.TF_VAR_PROGRAM }}
-      TF_VAR_project: ${{ vars.TF_VAR_PROJECT }}
     steps:
       - name: distinct ID ${{ inputs.distinct_id || github.run_id }}
         uses: imesense/gha-echo-action@v0.2
         with:
           input-string: ${{ inputs.distinct_id || github.run_id }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Verify the application exists
         uses: andstor/file-existence-action@v3
         with:
           fail: true
           files: "tofu/configs/hosting/specs/${{ inputs.application }}.yaml"
       - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -69,7 +68,7 @@ jobs:
         working-directory: ./tofu/configs/hosting
         run: tofu show -plan tfplan
       - name: Upload plan file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: hosting-tfplan
           path: |

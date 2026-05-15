@@ -9,6 +9,14 @@ variable "environment" {
   default     = "development"
 }
 
+variable "infra_project" {
+  type        = string
+  description = <<-EOT
+    Name of the core infrastructure project whose SSM outputs this config reads.
+    EOT
+  default     = "shared-services"
+}
+
 variable "project" {
   type        = string
   description = "Name of the shared hosting project."

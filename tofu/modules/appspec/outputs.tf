@@ -24,13 +24,16 @@ output "enabled" {
 }
 
 output "internal" {
-  description = "Whether this application is internal, meaning it should only be accessible to staff via an OIDC connection."
+  description = <<-EOT
+    Whether this application is internal, meaning it should only be accessible
+    to staff via an OIDC connection.
+    EOT
   value       = try(local.raw.internal, true)
 }
 
 output "name" {
   description = "The name of the app."
-  value       = local.raw.title
+  value       = local.raw.name
 }
 
 output "program" {
@@ -44,7 +47,9 @@ output "project" {
 }
 
 output "project_short" {
-  description = "Short name for the project, used in resource names with space limitations."
+  description = <<-EOT
+    Short name for the project, used in resource names with space limitations.
+    EOT
   value       = try(local.raw.name_short, local.raw.name)
 }
 
@@ -64,13 +69,22 @@ output "services" {
 }
 
 output "subdomain" {
-  description = "Subdomain to host the application under. This is typically only used for services that are using a shared domain, and is usually the name of the application."
+  description = <<-EOT
+    Subdomain to host the application under. This is typically only used for
+    services that are using a shared domain, and is usually the name of the
+    application.
+    EOT
   value       = try(local.raw.subdomain, null)
 }
 
 output "title" {
   description = "The title of the app."
   value       = try(local.raw.title, local.raw.name)
+}
+
+output "type" {
+  description = "The deployment type for the app (container, static)."
+  value       = try(local.raw.type, "container")
 }
 
 output "raw_spec" {

@@ -16,7 +16,7 @@ runs:
   steps:
     - name: Find all OpenTofu modules
       id: find
-      uses: bendrucker/find-terraform-modules@v1
+      uses: bendrucker/find-terraform-modules@v2
       with:
         working-directory: ${{ inputs.working-directory }}
     - name: Show all matching modules
@@ -35,7 +35,7 @@ runs:
         echo "${{ steps.diff.outputs.diff }}"
     - name: Get the modified modules
       id: modified
-      uses: actions/github-script@v7
+      uses: actions/github-script@v9
       with:
         script: |
           const modules = ${{ steps.find.outputs.modules }}

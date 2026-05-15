@@ -1,0 +1,53 @@
+variable "application_name" {
+  description = "Name of the static application (matches the spec name field)."
+  type        = string
+}
+
+variable "bucket_arn" {
+  description = "ARN of the shared static app content S3 bucket."
+  type        = string
+}
+
+variable "distribution_arn" {
+  description = <<-EOT
+    ARN of the shared CloudFront distribution serving static app content.
+    EOT
+  type        = string
+}
+
+variable "kms_key_arn" {
+  description = <<-EOT
+    ARN of the KMS key used to encrypt the shared static hosting S3 bucket.
+    EOT
+  type        = string
+}
+
+variable "domain" {
+  description = "Root domain for static application hosting."
+  type        = string
+}
+
+variable "environment" {
+  description = "Deployment environment."
+  type        = string
+}
+
+variable "project" {
+  description = "Project name used in resource naming and tagging."
+  type        = string
+  default     = "static-apps"
+}
+
+variable "repo" {
+  description = <<-EOT
+    GitHub repository (org/name) that deploys this application. Used to scope
+    the OIDC trust policy.
+    EOT
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of tags to apply to all resources."
+  type        = map(string)
+  default     = {}
+}
