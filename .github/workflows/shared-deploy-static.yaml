@@ -8,22 +8,29 @@ on:
     inputs:
       environment:
         description: Environment to deploy to.
+        type: string
         required: false
         default: development
-        type: string
       source_dir:
         description: >-
           Local directory to sync, relative to the repository or artifact root.
+        type: string
         required: false
         default: "."
-        type: string
       artifact_name:
         description: >-
           Name of a previously uploaded artifact to deploy. If set, the artifact
           is downloaded and synced directly without checking out the repository.
+        type: string
         required: false
         default: ""
+      prefix:
+        description: >-
+          Prefix within the S3 bucket to sync files to. This should be the same
+          as the application name.
         type: string
+        required: false
+        default: ${{ vars.STATIC_PREFIX }}
     secrets:
       AWS_ROLE_ARN:
         description: IAM role ARN to assume for deployment.
@@ -57,7 +64,7 @@ jobs:
       - name: Sync to S3
         run: |
           aws s3 sync "${{ inputs.source_dir }}" \
-            "s3://${{ vars.STATIC_BUCKET }}/${{ vars.STATIC_PREFIX }}" \
+            "s3://${{ vars.STATIC_BUCKET }}/${{ inputs.prefix }}" \
             --delete \
             --exclude ".git/*" \
             --exclude ".github/*"
@@ -66,4 +73,4 @@ jobs:
         run: |
           aws cloudfront create-invalidation \
             --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
-            --paths "/${{ vars.STATIC_PREFIX }}/*"
+            --paths "/${{ inputs.prefix }}/*"
