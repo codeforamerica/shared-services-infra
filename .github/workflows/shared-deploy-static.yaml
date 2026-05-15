@@ -29,8 +29,7 @@ on:
           Prefix within the S3 bucket to sync files to. This should be the same
           as the application name.
         type: string
-        required: false
-        default: ${{ vars.STATIC_PREFIX }}
+        required: true
     secrets:
       AWS_ROLE_ARN:
         description: IAM role ARN to assume for deployment.
