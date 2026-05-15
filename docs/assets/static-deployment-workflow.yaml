@@ -19,15 +19,31 @@ permissions:
 # Use this pattern if your site needs no build step (e.g. plain HTML, pre-built
 # assets committed to the repo). The shared workflow checks out the repo and
 # syncs the specified directory to S3.
+#
+# Environment variables expected on the GitHub environment:
+#   - AWS_ROLE_ARN (secret)       IAM role ARN scoped to your app's S3 prefix.
+#   - STATIC_BUCKET (var)         S3 bucket name (provided by DevOps).
+#   - STATIC_PREFIX (var)         S3 key prefix, usually the application name.
+#   - CLOUDFRONT_DISTRIBUTION_ID  CloudFront distribution ID (provided by DevOps).
+#                                 Cache invalidation is skipped if not set.
+#   - AWS_REGION (var, optional)  Defaults to us-east-1.
+#
+# Note on prefix: the `prefix` input defaults to vars.STATIC_PREFIX resolved
+# inside the reusable workflow, where the environment context is available.
+# GitHub does not make environment-scoped variables available in the `with:`
+# block of a `uses:` job, so passing `${{ vars.MY_PREFIX }}` from the calling
+# workflow will always be empty. If your prefix is stored under a different
+# variable name, either hard-code the value or use a repository-level secret.
 jobs:
   deploy:
     uses: codeforamerica/shared-services-infra/.github/workflows/shared-deploy-static.yaml@main
     with:
       environment: ${{ inputs.environment || 'development' }}
-      # source_dir: dist  # optional — defaults to repo root
+      # source_dir: dist   # optional — defaults to repo root
+      # prefix: my-app     # optional — defaults to vars.STATIC_PREFIX
     secrets: inherit
-    # If your secret is named differently, map it explicitly instead of
-    # using secrets: inherit:
+    # If your role ARN secret is named differently, map it explicitly instead
+    # of using secrets: inherit:
     #
     # secrets:
     #   AWS_ROLE_ARN: ${{ secrets.AWS_STATIC_ROLE_ARN }}
